@@ -16,6 +16,8 @@ body {
   padding:20px 12px; 
   margin:0; 
   min-height:100vh;
+  display: flex;
+  flex-direction: column;
 }
 h1 { 
   color:#00ff30; 
@@ -191,6 +193,15 @@ h1 {
   white-space:nowrap;
   box-shadow:0 2px 10px rgba(0,0,0,0.3);
 }
+footer {
+  margin-top: 50px;
+  padding: 20px 0 10px;
+  font-size: clamp(12px, 3.5vw, 14px);
+  color: #888;
+  border-top: 1px solid #2a2a2a;
+  width: 100%;
+  text-align: center;
+}
 @media (max-width: 550px) {
   body { padding:15px 10px; }
   .tab-button { padding:6px 14px; font-size:14px; }
@@ -202,6 +213,7 @@ h1 {
   .contact-email { padding:6px 12px; font-size:13px; }
   .note-box { padding:10px 12px; }
   h1 { margin-bottom:15px; }
+  footer { margin-top: 40px; }
 }
 </style>
 </head>
@@ -272,6 +284,10 @@ h1 {
   </div>
 </div>
 
+<footer>
+  <p>© <span id="currentYear"></span> ICraftPe store. All rights reserved.</p>
+</footer>
+
 <div id="copyToast" class="copy-toast">Copied!</div>
 
 <script>
@@ -327,6 +343,8 @@ h1 {
       }
     });
   });
+
+  document.getElementById("currentYear").textContent = new Date().getFullYear();
 </script>
 
 <script>
