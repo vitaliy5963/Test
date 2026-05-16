@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin - ICraftPe key system</title>
+<title>Admin panel</title>
 <style>
 body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:60px; }
 input, select { padding:10px; margin:5px; border-radius:8px; border:none; background:#222; color:#fff; }
@@ -61,7 +61,7 @@ th { background:#222; color:#00ff30; }
 <body>
 
 <div id="loginBox">
-<h1>Admin</h1>
+<h1>Admin panel:</h1>
 <p>Login:</p>
 <input id="login" type="text">
 <p>Password:</p>
@@ -93,7 +93,7 @@ function getSession() {
 function showLoginScreen() {
   document.body.innerHTML =
     "<div id='loginBox'>" +
-    "<h1>Admin</h1>" +
+    "<h1>Admin panel:</h1>" +
     "<p>Login:</p><input id='login' type='text'>" +
     "<p>Password:</p><input id='password' type='password'><br><br>" +
     "<button id='btn'>Login</button>" +
@@ -109,7 +109,7 @@ function showLoginScreen() {
 
     msg.innerHTML = "";
     btn.disabled = true;
-    btn.textContent = "Logging in...";
+    btn.textContent = "Logging...";
 
     try {
       const res = await fetch(POST_URL, {
@@ -124,12 +124,12 @@ function showLoginScreen() {
         setSession(login);
         startDashboard(login);
       } else {
-        msg.innerHTML = "<div class='msg error'>Error: Wrong login or password.</div>";
+        msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
         btn.disabled = false;
         btn.textContent = "Login";
       }
     } catch (e) {
-      msg.innerHTML = "<div class='msg error'>Error: Wrong login or password.</div>";
+      msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
       btn.disabled = false;
       btn.textContent = "Login";
     }
@@ -144,7 +144,7 @@ function startDashboard(login) {
 
   const user = document.createElement("div");
   user.className = "link";
-  user.textContent = "Logged in as: " + login;
+  user.textContent = "Logged as: " + login;
 
   const logout = document.createElement("div");
   logout.className = "link";
@@ -184,14 +184,14 @@ function startDashboard(login) {
         "</select>" +
       "</div>" +
       "<div class='sorting-area'>" +
-        "<label>Expiration sorting:</label>" +
+        "<label>Expiration date sorting:</label>" +
         "<select id='exp-sort-select'>" +
-          "<option value='desc' selected>Newest first</option>" +
-          "<option value='asc'>Oldest first</option>" +
+          "<option value='desc' selected>Descending</option>" +
+          "<option value='asc'>Ascending</option>" +
         "</select>" +
       "</div>" +
       "<div class='sorting-area'>" +
-        "<label>Keys per page:</label>" +
+        "<label>Keys on page:</label>" +
         "<select id='page-size-select'>" +
           "<option value='25' selected>25</option>" +
           "<option value='50'>50</option>" +
@@ -202,7 +202,7 @@ function startDashboard(login) {
         "</select>" +
       "</div>" +
       "<div class='search-area'>" +
-        "<input type='text' id='search-input' placeholder='Search key or HWID...' style='width:300px;'>" +
+        "<input type='text' id='search-input' placeholder='Enter a key or a HWID...' style='width:300px;'>" +
         "<button id='search-btn'>Search</button>" +
       "</div>" +
       "<div id='keys-table-container'>" +
@@ -224,7 +224,7 @@ function startDashboard(login) {
     "</div>" +
     "<div id='blacklist-tab' class='tab-content'>" +
       "<div class='search-area'>" +
-        "<input type='text' id='blacklist-search-input' placeholder='Search HWID...' style='width:300px;'>" +
+        "<input type='text' id='blacklist-search-input' placeholder='Enter a HWID...' style='width:300px;'>" +
         "<button id='blacklist-search-btn'>Search</button>" +
       "</div>" +
       "<div id='blacklist-table-container'>" +
@@ -248,10 +248,10 @@ function startDashboard(login) {
         "<div class='action-select'>" +
           "<label>Action:</label>" +
           "<select id='action-select'>" +
-            "<option value='none'>Select action</option>" +
-            "<option value='create'>Create custom key</option>" +
-            "<option value='delete'>Delete key</option>" +
-            "<option value='generate_multiple'>Generate multiple keys</option>" +
+            "<option value='none'>None</option>" +
+            "<option value='create'>Create a custom key</option>" +
+            "<option value='delete'>Delete a key</option>" +
+            "<option value='generate_multiple'>Generate keys (multiple)</option>" +
           '</select>' +
         "</div>" +
         "<div id='dynamic-inputs'></div>" +
@@ -351,7 +351,7 @@ function startDashboard(login) {
     if (nextBtn) nextBtn.disabled = true;
     
     const tbody = document.getElementById("keys-tbody");
-    if (tbody) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading...</td></tr>";
+    if (tbody) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
 
     const body = "action=get_keys&page=" + page + "&search=" + encodeURIComponent(search) + "&sort=" + sort + "&exp_sort=" + expSort + "&page_size=" + pageSize;
     const res = await fetch(POST_URL, {
@@ -367,7 +367,7 @@ function startDashboard(login) {
       currentPage = data.currentPage;
       startCountdown();
     } else {
-      if (tbody) tbody.innerHTML = "<tr><td colspan='6'>Failed to load keys</td></tr>";
+      if (tbody) tbody.innerHTML = "<tr><td colspan='6'>Error loading keys</td></tr>";
     }
 
     if (searchBtn) searchBtn.disabled = false;
@@ -510,7 +510,7 @@ function startDashboard(login) {
 
   async function fetchBlacklist(page, search) {
     const tbody = document.getElementById("blacklist-tbody");
-    if (tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Loading...</td></tr>";
+    if (tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Loading blacklist...</td></tr>";
 
     const res = await fetch(POST_URL, {
       method: "POST",
@@ -523,7 +523,7 @@ function startDashboard(login) {
       renderBlacklistTable(data.hwidList);
       renderBlacklistPagination(data.currentPage, data.totalPages, data.totalResults);
     } else {
-      if (tbody) tbody.innerHTML = "<tr><td colspan='4'>Failed to load blacklist</td></tr>";
+      if (tbody) tbody.innerHTML = "<tr><td colspan='4'>Error loading blacklist</td></tr>";
     }
   }
 
@@ -732,7 +732,7 @@ function startDashboard(login) {
           '<input type="text" id="custom-key">' +
         '</div>' +
         '<div class="input-group">' +
-          '<label>Expiration time (seconds):</label>' +
+          '<label>Expiration time (in seconds):</label>' +
           '<input type="number" id="exp-seconds">' +
         '</div>' +
         '<div class="input-group">' +
@@ -748,11 +748,11 @@ function startDashboard(login) {
           const expSec = expInput ? parseInt(expInput.value, 10) : NaN;
           const selectedType = typeSelect ? typeSelect.value : "Admin";
           if (!key) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Key field cannot be empty.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: The key field can't be empty!</div>";
             return;
           }
           if (isNaN(expSec) || expSec <= 0) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Enter a valid positive number of seconds.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: Please enter a valid positive number of seconds.</div>";
             return;
           }
           createBtn.disabled = true;
@@ -764,13 +764,13 @@ function startDashboard(login) {
           });
           const data = await res.json();
           if (data.success) {
-            manageResult.innerHTML = "<div class='msg success'>Key created successfully.</div>";
+            manageResult.innerHTML = "<div class='msg success'>Successfully created a custom key: " + escapeHtml(key) + "</div>";
             if (keyInput) keyInput.value = "";
             if (expInput) expInput.value = "";
             await fetchStats();
             await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
           } else {
-            manageResult.innerHTML = "<div class='msg error'>" + (data.message || "Failed to create key") + "</div>";
+            manageResult.innerHTML = "<div class='msg error'>" + escapeHtml(data.message) + "</div>";
           }
           createBtn.disabled = false;
           createBtn.textContent = "Create";
@@ -791,7 +791,7 @@ function startDashboard(login) {
           const keyInput = document.getElementById("delete-key");
           const key = keyInput ? keyInput.value.trim() : "";
           if (!key) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Key field cannot be empty.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: The key field can't be empty!</div>";
             return;
           }
           deleteBtn.disabled = true;
@@ -803,12 +803,12 @@ function startDashboard(login) {
           });
           const data = await res.json();
           if (data.success) {
-            manageResult.innerHTML = "<div class='msg success'>Key deleted successfully.</div>";
+            manageResult.innerHTML = "<div class='msg success'>Successfully deleted the key.</div>";
             if (keyInput) keyInput.value = "";
             await fetchStats();
             await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
           } else {
-            manageResult.innerHTML = "<div class='msg error'>" + (data.message || "Failed to delete key") + "</div>";
+            manageResult.innerHTML = "<div class='msg error'>" + escapeHtml(data.message) + "</div>";
           }
           deleteBtn.disabled = false;
           deleteBtn.textContent = "Delete";
@@ -831,11 +831,11 @@ function startDashboard(login) {
           '<input type="text" id="custom-prefix" maxlength="20">' +
         '</div>' +
         '<div class="input-group">' +
-          '<label>Amount of keys (max 1000):</label>' +
+          '<label>Amount of keys (up to 1000):</label>' +
           '<input type="number" id="keys-amount" min="1" max="1000">' +
         '</div>' +
         '<div class="input-group">' +
-          '<label>Expiration time (seconds):</label>' +
+          '<label>Expiration time (in seconds):</label>' +
           '<input type="number" id="exp-seconds">' +
         '</div>' +
         '<div class="input-group">' +
@@ -873,15 +873,15 @@ function startDashboard(login) {
           const selectedType = typeSelect ? typeSelect.value : "Admin";
 
           if (useCustom && !prefix) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Custom prefix cannot be empty.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: The custom prefix field can't be empty.</div>";
             return;
           }
           if (isNaN(amount) || amount < 1 || amount > 1000) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Amount must be between 1 and 1000.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: The keys amount field can't be empty or exceed 1000.</div>";
             return;
           }
           if (isNaN(expSec) || expSec <= 0) {
-            manageResult.innerHTML = "<div class='msg error'>Error: Enter valid expiration time.</div>";
+            manageResult.innerHTML = "<div class='msg error'>Error: The expiration time can't be empty.</div>";
             return;
           }
 
@@ -902,12 +902,19 @@ function startDashboard(login) {
           const data = await res.json();
 
           if (data.success) {
-            let msgHtml = "<div class='msg success'>Successfully generated " + data.count + " keys.</div>";
+            let msgHtml = "<div class='msg success'>Successfully generated " + data.count + " keys:<br><br>";
+            data.keys.forEach(k => {
+              msgHtml += escapeHtml(k) + "<br>";
+            });
+            msgHtml += "</div>";
             manageResult.innerHTML = msgHtml;
+            if (prefixInput) prefixInput.value = "";
+            if (document.getElementById("keys-amount")) document.getElementById("keys-amount").value = "";
+            if (document.getElementById("exp-seconds")) document.getElementById("exp-seconds").value = "";
             await fetchStats();
             await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
           } else {
-            manageResult.innerHTML = "<div class='msg error'>" + (data.message || "Failed to generate keys") + "</div>";
+            manageResult.innerHTML = "<div class='msg error'>" + escapeHtml(data.message || "Unknown error") + "</div>";
           }
           genBtn.disabled = false;
           genBtn.textContent = "Generate";
@@ -930,11 +937,11 @@ function openPasswordPage(login) {
 
   const user = document.createElement("div");
   user.className = "link";
-  user.textContent = "Logged in as: " + login;
+  user.textContent = "Logged as: " + login;
 
   const back = document.createElement("div");
   back.className = "link";
-  back.textContent = "Back to dashboard";
+  back.textContent = "Return to dashboard";
 
   const logout = document.createElement("div");
   logout.className = "link";
@@ -950,10 +957,10 @@ function openPasswordPage(login) {
   box.style.marginTop = "120px";
 
   box.innerHTML =
-    "<h1>Change password</h1>" +
+    "<h1>Change password:</h1>" +
     "<p>Current password:</p><input id='cpass' type='password'>" +
     "<p>New password:</p><input id='npass' type='password'>" +
-    "<p>New password (confirm):</p><input id='npass2' type='password'><br><br>" +
+    "<p>New password (confirmation):</p><input id='npass2' type='password'><br><br>" +
     "<button id='save'>Save password</button>" +
     "<div id='msg'></div>";
 
@@ -968,6 +975,7 @@ function openPasswordPage(login) {
   };
 
   user.onclick = () => startDashboard(login);
+
   back.onclick = () => startDashboard(login);
 
   save.onclick = async () => {
@@ -978,10 +986,10 @@ function openPasswordPage(login) {
     const n2 = document.getElementById("npass2").value;
 
     save.disabled = true;
-    save.textContent = "Saving...";
+    save.textContent = "Saving password...";
 
     if (/^[0-9]/.test(n)) {
-      msg.innerHTML = "<div class='msg error'>Error: New password cannot start with a number.</div>";
+      msg.innerHTML = "<div class='msg error'>Error: The password you're trying to set begins with a number. Please, begin with a letter instead!</div>";
       save.disabled = false;
       save.textContent = "Save password";
       return;
@@ -1000,19 +1008,22 @@ function openPasswordPage(login) {
       const data = await res.json();
 
       if (data.success) {
-        msg.innerHTML = "<div class='msg success'>Password changed successfully. Logging out...</div>";
+        msg.innerHTML = "<div class='msg success'>Successfully changed your password.</div>";
+        save.textContent = "Save password";
         save.disabled = true;
+
         setTimeout(() => {
           clearSession();
           showLoginScreen();
-        }, 3000);
+        }, 5000);
+
       } else {
-        msg.innerHTML = "<div class='msg error'>" + (data.message || "Failed to change password") + "</div>";
+        msg.innerHTML = "<div class='msg error'>" + data.message + "</div>";
         save.disabled = false;
         save.textContent = "Save password";
       }
     } catch (e) {
-      msg.innerHTML = "<div class='msg error'>Request failed.</div>";
+      msg.innerHTML = "<div class='msg error'>Error: request failed.</div>";
       save.disabled = false;
       save.textContent = "Save password";
     }
@@ -1025,7 +1036,7 @@ btn.onclick = async () => {
 
   msg.innerHTML = "";
   btn.disabled = true;
-  btn.textContent = "Logging in...";
+  btn.textContent = "Logging...";
 
   try {
     const res = await fetch(POST_URL, {
@@ -1040,12 +1051,12 @@ btn.onclick = async () => {
       setSession(login);
       startDashboard(login);
     } else {
-      msg.innerHTML = "<div class='msg error'>Error: Wrong login or password.</div>";
+      msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
       btn.disabled = false;
       btn.textContent = "Login";
     }
   } catch (e) {
-    msg.innerHTML = "<div class='msg error'>Error: Wrong login or password.</div>";
+    msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
     btn.disabled = false;
     btn.textContent = "Login";
   }
