@@ -74,21 +74,29 @@ th { background:#222; color:#00ff30; }
 <script>
 const POST_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
 
-function setSession(login) {
+function setSession(login, password) {
   localStorage.setItem("admin_login", login);
+  localStorage.setItem("admin_password", password);
   localStorage.setItem("admin_time", Date.now().toString());
 }
 
 function clearSession() {
   localStorage.removeItem("admin_login");
+  localStorage.removeItem("admin_password");
   localStorage.removeItem("admin_time");
 }
 
 function getSession() {
   return {
     login: localStorage.getItem("admin_login"),
+    password: localStorage.getItem("admin_password"),
     time: parseInt(localStorage.getItem("admin_time") || "0", 10)
   };
+}
+
+function getAdminCredentials() {
+  const s = getSession();
+  return { login: s.login || "", password: s.password || "" };
 }
 
 function showLoginScreen() {
@@ -122,7 +130,7 @@ function showLoginScreen() {
       const data = await res.json();
 
       if (data.success) {
-        setSession(login);
+        setSession(login, password);
         startDashboard(login);
       } else {
         msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
@@ -328,12 +336,18 @@ function startDashboard(login) {
   }
 
   async function fetchStats() {
+    const creds = getAdminCredentials();
     const res = await fetch(POST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "action=get_stats"
+      body: "action=get_stats&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
     });
     const data = await res.json();
+    if (!data.success && data.message === "Validation failed.") {
+      clearSession();
+      showLoginScreen();
+      return;
+    }
     if (data.success) {
       document.getElementById("total-keys").innerText = data.total;
       document.getElementById("active-keys").innerText = data.active;
@@ -354,13 +368,21 @@ function startDashboard(login) {
     const tbody = document.getElementById("keys-tbody");
     if (tbody) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
 
-    const body = "action=get_keys&page=" + page + "&search=" + encodeURIComponent(search) + "&sort=" + sort + "&exp_sort=" + expSort + "&page_size=" + pageSize;
+    const creds = getAdminCredentials();
+    const body = "action=get_keys&page=" + page + "&search=" + encodeURIComponent(search) + "&sort=" + sort + "&exp_sort=" + expSort + "&page_size=" + pageSize + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password);
     const res = await fetch(POST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body
     });
     const data = await res.json();
+
+    if (!data.success && data.message === "Validation failed.") {
+      clearSession();
+      showLoginScreen();
+      isLoading = false;
+      return;
+    }
 
     if (data.success) {
       renderTable(data.keys);
@@ -420,12 +442,18 @@ function startDashboard(login) {
         const key = btn.getAttribute("data-key");
         btn.disabled = true;
         btn.textContent = "Deleting...";
+        const creds = getAdminCredentials();
         const res = await fetch(POST_URL, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=admin_delete_key_by_key&key=" + encodeURIComponent(key)
+          body: "action=admin_delete_key_by_key&key=" + encodeURIComponent(key) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
         });
         const data = await res.json();
+        if (!data.success && data.message === "Validation failed.") {
+          clearSession();
+          showLoginScreen();
+          return;
+        }
         if (data.success) {
           await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
           await fetchStats();
@@ -454,10 +482,10 @@ function startDashboard(login) {
 
         btn.disabled = true;
         btn.textContent = currentlyBlacklisted ? "Whitelisting..." : "Blacklisting...";
-
+        const creds = getAdminCredentials();
         let actionUrl = currentlyBlacklisted 
-          ? "action=admin_remove_from_blacklist&hwid=" + encodeURIComponent(hwid)
-          : "action=admin_blacklist_hwid&key=" + encodeURIComponent(key) + "&hwid=" + encodeURIComponent(hwid);
+          ? "action=admin_remove_from_blacklist&hwid=" + encodeURIComponent(hwid) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
+          : "action=admin_blacklist_hwid&key=" + encodeURIComponent(key) + "&hwid=" + encodeURIComponent(hwid) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password);
 
         const res = await fetch(POST_URL, {
           method: "POST",
@@ -465,6 +493,12 @@ function startDashboard(login) {
           body: actionUrl
         });
         const data = await res.json();
+
+        if (!data.success && data.message === "Validation failed.") {
+          clearSession();
+          showLoginScreen();
+          return;
+        }
 
         if (data.success) {
           await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
@@ -513,12 +547,19 @@ function startDashboard(login) {
     const tbody = document.getElementById("blacklist-tbody");
     if (tbody) tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Loading blacklist...</td></tr>";
 
+    const creds = getAdminCredentials();
     const res = await fetch(POST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "action=get_blacklist&page=" + page + "&search=" + encodeURIComponent(search) + "&page_size=" + blacklistPageSize
+      body: "action=get_blacklist&page=" + page + "&search=" + encodeURIComponent(search) + "&page_size=" + blacklistPageSize + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
     });
     const data = await res.json();
+
+    if (!data.success && data.message === "Validation failed.") {
+      clearSession();
+      showLoginScreen();
+      return;
+    }
 
     if (data.success) {
       renderBlacklistTable(data.hwidList);
@@ -551,12 +592,18 @@ function startDashboard(login) {
         const hwid = btn.getAttribute("data-hwid");
         btn.disabled = true;
         btn.textContent = "Removing...";
+        const creds = getAdminCredentials();
         const res = await fetch(POST_URL, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "action=admin_remove_from_blacklist&hwid=" + encodeURIComponent(hwid)
+          body: "action=admin_remove_from_blacklist&hwid=" + encodeURIComponent(hwid) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
         });
         const data = await res.json();
+        if (!data.success && data.message === "Validation failed.") {
+          clearSession();
+          showLoginScreen();
+          return;
+        }
         if (data.success) {
           await fetchBlacklist(currentBlacklistPage, currentBlacklistSearch);
           await fetchKeys(currentPage, currentSearch, currentSort, currentExpSort, currentPageSize);
@@ -758,12 +805,18 @@ function startDashboard(login) {
           }
           createBtn.disabled = true;
           createBtn.textContent = "Creating...";
+          const creds = getAdminCredentials();
           const res = await fetch(POST_URL, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "action=admin_create_key&key=" + encodeURIComponent(key) + "&expiration_seconds=" + expSec + "&key_type=" + encodeURIComponent(selectedType)
+            body: "action=admin_create_key&key=" + encodeURIComponent(key) + "&expiration_seconds=" + expSec + "&key_type=" + encodeURIComponent(selectedType) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
           });
           const data = await res.json();
+          if (!data.success && data.message === "Validation failed.") {
+            clearSession();
+            showLoginScreen();
+            return;
+          }
           if (data.success) {
             manageResult.innerHTML = "<div class='msg success'>Successfully created a custom key: " + escapeHtml(key) + "</div>";
             if (keyInput) keyInput.value = "";
@@ -797,12 +850,18 @@ function startDashboard(login) {
           }
           deleteBtn.disabled = true;
           deleteBtn.textContent = "Deleting...";
+          const creds = getAdminCredentials();
           const res = await fetch(POST_URL, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "action=admin_delete_key_by_key&key=" + encodeURIComponent(key)
+            body: "action=admin_delete_key_by_key&key=" + encodeURIComponent(key) + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password)
           });
           const data = await res.json();
+          if (!data.success && data.message === "Validation failed.") {
+            clearSession();
+            showLoginScreen();
+            return;
+          }
           if (data.success) {
             manageResult.innerHTML = "<div class='msg success'>Successfully deleted the key.</div>";
             if (keyInput) keyInput.value = "";
@@ -889,11 +948,14 @@ function startDashboard(login) {
           genBtn.disabled = true;
           genBtn.textContent = "Generating...";
 
+          const creds = getAdminCredentials();
           const body = "action=admin_generate_multiple" +
             "&custom_prefix=" + encodeURIComponent(useCustom ? prefix : "") +
             "&amount=" + amount +
             "&expiration_seconds=" + expSec +
-            "&key_type=" + encodeURIComponent(selectedType);
+            "&key_type=" + encodeURIComponent(selectedType) +
+            "&login=" + encodeURIComponent(creds.login) +
+            "&password=" + encodeURIComponent(creds.password);
 
           const res = await fetch(POST_URL, {
             method: "POST",
@@ -901,6 +963,12 @@ function startDashboard(login) {
             body: body
           });
           const data = await res.json();
+
+          if (!data.success && data.message === "Validation failed.") {
+            clearSession();
+            showLoginScreen();
+            return;
+          }
 
           if (data.success) {
             let msgHtml = "<div class='msg success'>Successfully generated " + data.count + " keys:<br><br>";
@@ -997,16 +1065,25 @@ function openPasswordPage(login) {
     }
 
     try {
+      const creds = getAdminCredentials();
       const res = await fetch(POST_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "action=change_password&login=" + encodeURIComponent(login) +
           "&current=" + encodeURIComponent(c) +
           "&new=" + encodeURIComponent(n) +
-          "&confirm=" + encodeURIComponent(n2)
+          "&confirm=" + encodeURIComponent(n2) +
+          "&session_login=" + encodeURIComponent(creds.login) +
+          "&session_password=" + encodeURIComponent(creds.password)
       });
 
       const data = await res.json();
+
+      if (!data.success && data.message === "Validation failed.") {
+        clearSession();
+        showLoginScreen();
+        return;
+      }
 
       if (data.success) {
         msg.innerHTML = "<div class='msg success'>Successfully changed your password.</div>";
@@ -1049,7 +1126,7 @@ btn.onclick = async () => {
     const data = await res.json();
 
     if (data.success) {
-      setSession(login);
+      setSession(login, password);
       startDashboard(login);
     } else {
       msg.innerHTML = "<div class='msg error'>Error: The login or password you entered doesn't exist.</div>";
@@ -1065,7 +1142,7 @@ btn.onclick = async () => {
 
 (function autoLogin(){
   const s = getSession();
-  if (s.login && s.time) {
+  if (s.login && s.password && s.time) {
     const diff = Date.now() - s.time;
     if (diff < 86400000) {
       startDashboard(s.login);
@@ -1077,7 +1154,6 @@ btn.onclick = async () => {
 })();
 </script>
 
-<!-- AdSense Auto Ads -->
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({
   google_ad_client: "ca-pub-5252606552651648",
