@@ -10,36 +10,63 @@ button { padding:15px 30px; font-size:18px; border-radius:12px; background:#00FF
 </head>
 <body>
 <h1>ICraftPe key system</h1>
-<p>Click the button to get a temporary key</p>
+<p id="status">Click the button to get your key</p>
 <button id="btn">Get key</button>
 
 <script>
 const POST_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
 
-document.getElementById("btn").onclick = async () => {
+async function generateKey(tempKey) {
   const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+  
   btn.disabled = true;
   btn.textContent = "Generating...";
+  status.textContent = "Please wait...";
 
   try {
     const res = await fetch(POST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "action=generate_temp"
+      body: "action=generate_key&temporary_key=" + encodeURIComponent(tempKey)
     });
     const data = await res.json();
 
-    if (data.success) {
-      window.location.href = POST_URL + "?action=generate_key&temporary_key=" + encodeURIComponent(data.temporary_key);
+    if (data.success && data.key) {
+      status.innerHTML = "Your key:<br><b>" + data.key + "</b>";
+      btn.textContent = "Copy key";
+      btn.onclick = () => {
+        navigator.clipboard.writeText(data.key);
+        btn.textContent = "Copied!";
+      };
     } else {
+      status.textContent = "Failed to generate key.";
       btn.textContent = "Try again";
       btn.disabled = false;
     }
   } catch(e) {
-    btn.textContent = "Error - Try again";
+    status.textContent = "Error occurred.";
+    btn.textContent = "Try again";
     btn.disabled = false;
   }
-};
+}
+
+// Auto process if temporary_key is in URL
+const urlParams = new URLSearchParams(window.location.search);
+const tempKey = urlParams.get("temporary_key");
+
+if (tempKey) {
+  generateKey(tempKey);
+} else {
+  document.getElementById("btn").onclick = () => {
+    // Fallback: get new temp key first
+    fetch(POST_URL + "?action=generate_temp")
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) generateKey(data.temporary_key);
+      });
+  };
+}
 </script>
 </body>
 </html>
