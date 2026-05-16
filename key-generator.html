@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Get key - ICraftPe key system</title>
+<style>
+body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:80px; }
+button { padding:15px 30px; font-size:18px; border-radius:12px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
+</style>
+</head>
+<body>
+<h1>ICraftPe key system</h1>
+<p>Click the button to get a temporary key</p>
+<button id="btn">Get key</button>
+
+<script>
+const POST_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
+
+document.getElementById("btn").onclick = async () => {
+  const btn = document.getElementById("btn");
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+
+  try {
+    const res = await fetch(POST_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "action=generate_temp"
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = POST_URL + "?action=generate_key&temporary_key=" + encodeURIComponent(data.temporary_key);
+    } else {
+      btn.textContent = "Try again";
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = "Error - Try again";
+    btn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
