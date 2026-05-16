@@ -2,69 +2,64 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Get key - ICraftPe key system</title>
+<title>Key system</title>
 <style>
-body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:80px; }
-button { padding:15px 30px; font-size:18px; border-radius:12px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
+body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:60px; }
+button { padding:15px 30px; font-size:16px; border-radius:12px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
+button:disabled { opacity:0.6; cursor:not-allowed; }
 </style>
 </head>
 <body>
-<h1>ICraftPe key system</h1>
-<p id="status">Click the button to get your key</p>
+<h1>Key system</h1>
+<p>Click the button below to get your key for the script.</p>
 <button id="btn">Get key</button>
 
 <script>
 const POST_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
 
-async function generateKey(tempKey) {
-  const btn = document.getElementById("btn");
-  const status = document.getElementById("status");
-  
+const urlParams = new URLSearchParams(window.location.search);
+const TEMP_KEY = urlParams.get("temporary_key");
+
+const btn = document.getElementById("btn");
+
+if (!TEMP_KEY) {
+  btn.textContent = "Error: No temporary key";
   btn.disabled = true;
-  btn.textContent = "Generating...";
-  status.textContent = "Please wait...";
+} else {
+  btn.onclick = async () => {
+    btn.disabled = true;
+    btn.textContent = "Generating the key...";
+    await new Promise(r => setTimeout(r, 3000));
 
-  try {
-    const res = await fetch(POST_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "action=generate_key&temporary_key=" + encodeURIComponent(tempKey)
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch(POST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "action=generate_key&temporary_key=" + encodeURIComponent(TEMP_KEY)
+      });
 
-    if (data.success && data.key) {
-      status.innerHTML = "Your key:<br><b>" + data.key + "</b>";
-      btn.textContent = "Copy key";
-      btn.onclick = () => {
-        navigator.clipboard.writeText(data.key);
-        btn.textContent = "Copied!";
-      };
-    } else {
-      status.textContent = "Failed to generate key.";
-      btn.textContent = "Try again";
+      const data = await res.json();
+
+      if (data.success && data.key) {
+        const key = data.key;
+        const p = document.createElement("p");
+        p.textContent = "Key: " + key;
+        document.body.insertBefore(p, btn);
+
+        btn.textContent = "Copy key";
+        btn.disabled = false;
+
+        btn.onclick = () => {
+          navigator.clipboard.writeText(key);
+        };
+      } else {
+        btn.textContent = "Error";
+        btn.disabled = false;
+      }
+    } catch (e) {
+      btn.textContent = "Error";
       btn.disabled = false;
     }
-  } catch(e) {
-    status.textContent = "Error occurred.";
-    btn.textContent = "Try again";
-    btn.disabled = false;
-  }
-}
-
-// Auto process if temporary_key is in URL
-const urlParams = new URLSearchParams(window.location.search);
-const tempKey = urlParams.get("temporary_key");
-
-if (tempKey) {
-  generateKey(tempKey);
-} else {
-  document.getElementById("btn").onclick = () => {
-    // Fallback: get new temp key first
-    fetch(POST_URL + "?action=generate_temp")
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) generateKey(data.temporary_key);
-      });
   };
 }
 </script>
