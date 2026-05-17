@@ -165,6 +165,13 @@ h1 {
   background:#00cc28;
   transform:scale(0.98);
 }
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  margin: 10px 0;
+}
 .note-box { 
   background:#2a2a2a; 
   border-left:5px solid #ffaa00; 
@@ -280,7 +287,10 @@ footer {
 
     <h3>Robux:</h3>
     <p>Use this Roblox game:</p>
-    <a href="https://ro.blox.com/ch/Ebh5?is_retargeting=false&af_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D139470043011155" target="_blank" rel="noopener noreferrer" class="btn-link">Click here to purchase with Robux</a>
+    <div class="btn-group">
+      <a href="https://ro.blox.com/ch/Ebh5?is_retargeting=false&af_dp=https%3A%2F%2Fwww.roblox.com%2Fgames%2Fstart%3Fplaceid%3D139470043011155" target="_blank" rel="noopener noreferrer" class="btn-link">Click here to purchase with Robux (mobile / tablet)</a>
+      <a href="https://www.roblox.com/games/139470043011155" target="_blank" rel="noopener noreferrer" class="btn-link">Click here to purchase with Robux (PC / laptop)</a>
+    </div>
 
     <div class="note-box">
       <strong>Note:</strong> After paying using PayPal or UAH, make a screenshot of the purchase or transaction and send it using any contact option in the "Contact us" section.
