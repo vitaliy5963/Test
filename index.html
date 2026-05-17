@@ -55,7 +55,7 @@ h1 {
 }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
-.about-container { 
+.about-container, .privacy-container { 
   max-width:800px; 
   margin:0 auto; 
   text-align:left; 
@@ -66,27 +66,27 @@ h1 {
   width:100%; 
   overflow-x:auto;
 }
-.about-container h2 { 
+.about-container h2, .privacy-container h2 { 
   color:#00ff30; 
   text-align:center; 
   margin-top:0; 
   font-size:clamp(22px, 6vw, 30px); 
 }
-.about-container h3 { 
+.about-container h3, .privacy-container h3 { 
   color:#00ff30; 
   margin:24px 0 12px 0; 
   font-size:clamp(18px, 5vw, 22px); 
 }
-.about-container p { 
+.about-container p, .privacy-container p { 
   margin:12px 0; 
   line-height:1.5; 
   font-size:clamp(14px, 4vw, 16px); 
 }
-.about-container ul { 
+.about-container ul, .privacy-container ul { 
   padding-left:20px; 
   margin:10px 0;
 }
-.about-container li { 
+.about-container li, .privacy-container li { 
   margin:8px 0; 
   font-size:clamp(14px, 4vw, 16px); 
 }
@@ -205,7 +205,7 @@ footer {
 @media (max-width: 550px) {
   body { padding:15px 10px; }
   .tab-button { padding:6px 14px; font-size:14px; }
-  .about-container { padding:15px 12px; }
+  .about-container, .privacy-container { padding:15px 12px; }
   .prices { padding:8px; }
   .prices th, .prices td { padding:8px 5px; }
   .card { display:inline-block; margin:3px 0; white-space:nowrap; }
@@ -223,6 +223,7 @@ footer {
 <div class="tab-bar">
   <button id="tab-about-btn" class="tab-button active">ICraftPe store</button>
   <button id="tab-contact-btn" class="tab-button">Contact us</button>
+  <button id="tab-privacy-btn" class="tab-button">Privacy policy</button>
 </div>
 
 <div id="about-tab" class="tab-content active">
@@ -278,9 +279,86 @@ footer {
 </div>
 
 <div id="contact-tab" class="tab-content">
-  <h2 style="color:#00ff30; font-size:clamp(22px,6vw,30px);">Contact us:</h2>
-  <div class="contact-email" style="display:inline-flex;">
-    📧 <a href="mailto:icraftpestore@gmail.com">icraftpestore@gmail.com</a>
+  <div class="about-container">
+    <h2>Contact us:</h2>
+    <div class="contact-email" style="display:inline-flex; margin:20px auto;">
+      📧 <a href="mailto:icraftpestore@gmail.com">icraftpestore@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<div id="privacy-tab" class="tab-content">
+  <div class="privacy-container">
+    <h2>Privacy policy</h2>
+    <p><strong>Your privacy is important to us. This policy explains how ICraftPe store handles your data.</strong></p>
+    <p><em>Last updated: 17th of May, 2026</em></p>
+
+    <h3>1. Overview</h3>
+    <p>ICraftPe store ("we," "our," or "us") is committed to protecting your privacy. This privacy policy explains how we collect, use, and safeguard your information when you use our website and tools.</p>
+    <p><strong>Key point:</strong> ICraftPe store is designed with privacy at its core. Our service process is fully secure and private - we never store, share and use your provided information, such as emails and transactions.</p>
+
+    <h3>2. Information we don't collect</h3>
+    <p>Unlike many websites, we do NOT collect:</p>
+    <ul>
+      <li>Your purchase transactions: Purchase transactions are deleted shortly after issuing the product</li>
+      <li>Your visit: We don't store your visit information, such as the time, date and info about your visit</li>
+      <li>User accounts: We don't require registration or login</li>
+    </ul>
+
+    <h3>3. Information we may collect</h3>
+    <p>To improve our service and display relevant ads, we may collect:</p>
+    <p><strong>Automatically collected information</strong></p>
+    <ul>
+      <li>Browser type and version</li>
+      <li>Device type (desktop, mobile or tablet)</li>
+      <li>Operating system</li>
+      <li>General geographic location (country / region level)</li>
+    </ul>
+    <p><strong>Contact Information (optional)</strong><br>If you contact us through our "Contact us" section, we collect:</p>
+    <ul>
+      <li>Name (if provided)</li>
+      <li>Email address</li>
+      <li>Message content</li>
+    </ul>
+
+    <h3>4. Cookies and local storage</h3>
+    <p><strong>Essential cookies</strong><br>Our advertising partners may use cookies to display relevant ads. These third parties include:</p>
+    <ul>
+      <li>Google AdSense (for displaying advertisements)</li>
+    </ul>
+    <p>You can control cookies through your browser settings. Disabling cookies may affect some functionality.</p>
+
+    <h3>5. Third-party services</h3>
+    <p><strong>Advertising</strong><br>We display advertisements to support our store. Ad providers may use cookies to personalize ads based on your browsing history across websites.</p>
+
+    <h3>6. Data security</h3>
+    <p>Since we don't store your content anywhere, your data is securely protected. Any data processed in your browser:</p>
+    <ul>
+      <li>Stays on your device</li>
+      <li>Is never transmitted to us</li>
+      <li>Is cleared when you close the browser tab</li>
+    </ul>
+    <p>For the minimal data we do collect (analytics, contact form), we use industry-standard security measures including HTTPS encryption.</p>
+
+    <h3>7. Your rights</h3>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access any personal data we hold about you</li>
+      <li>Request deletion of your data</li>
+      <li>Opt out of analytics tracking</li>
+      <li>Disable cookies through your browser</li>
+      <li>Use our service without providing any personal information</li>
+    </ul>
+    <p>To exercise these rights, please contact us by checking out "Contact us" section.</p>
+
+    <h3>8. Children's privacy</h3>
+    <p>ICraftPe store is not directed at children under 13. We don't knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us by checking out "Contact us" section.</p>
+
+    <h3>9. Changes to this policy</h3>
+    <p>We may update this privacy policy from time to time. Changes will be posted on this page with an updated "Last updated" date and time. Continued use of our service after changes constitutes acceptance of the updated policy.</p>
+
+    <h3>10. Contact us</h3>
+    <p>If you have questions about this privacy policy or our data practices, please contact us by checking out "Contact us" section.</p>
   </div>
 </div>
 
@@ -293,25 +371,34 @@ footer {
 <script>
   const aboutBtn = document.getElementById("tab-about-btn");
   const contactBtn = document.getElementById("tab-contact-btn");
+  const privacyBtn = document.getElementById("tab-privacy-btn");
   const aboutTab = document.getElementById("about-tab");
   const contactTab = document.getElementById("contact-tab");
+  const privacyTab = document.getElementById("privacy-tab");
 
   function switchTab(tab) {
+    aboutTab.classList.remove("active");
+    contactTab.classList.remove("active");
+    privacyTab.classList.remove("active");
+    aboutBtn.classList.remove("active");
+    contactBtn.classList.remove("active");
+    privacyBtn.classList.remove("active");
+
     if (tab === "about") {
       aboutTab.classList.add("active");
-      contactTab.classList.remove("active");
       aboutBtn.classList.add("active");
-      contactBtn.classList.remove("active");
     } else if (tab === "contact") {
       contactTab.classList.add("active");
-      aboutTab.classList.remove("active");
       contactBtn.classList.add("active");
-      aboutBtn.classList.remove("active");
+    } else if (tab === "privacy") {
+      privacyTab.classList.add("active");
+      privacyBtn.classList.add("active");
     }
   }
 
   aboutBtn.onclick = () => switchTab("about");
   contactBtn.onclick = () => switchTab("contact");
+  privacyBtn.onclick = () => switchTab("privacy");
 
   const toast = document.getElementById("copyToast");
   let toastTimeout;
