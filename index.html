@@ -165,7 +165,7 @@ h1 {
   background:#00cc28;
   transform:scale(0.98);
 }
-.purchase-btn, .see-products-btn, .hide-products-btn {
+.purchase-btn, .toggle-products-btn {
   background:#00ff30;
   color:#000;
   padding:12px 20px;
@@ -177,16 +177,9 @@ h1 {
   margin:10px 5px;
   transition:0.2s;
 }
-.purchase-btn:active, .see-products-btn:active, .hide-products-btn:active {
+.purchase-btn:active, .toggle-products-btn:active {
   background:#00cc28;
   transform:scale(0.98);
-}
-.hide-products-btn {
-  background:#ff4444;
-  color:#fff;
-}
-.hide-products-btn:active {
-  background:#cc0000;
 }
 .warning-box { 
   background:#2a0a0a; 
@@ -224,20 +217,47 @@ h1 {
 .note-box strong { 
   color:#ffaa00; 
 }
-.purchase-gui {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease-out, margin 0.2s ease;
-  margin: 0;
-  background: #1e1e1e;
-  border-radius: 16px;
-  padding: 0 16px;
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
 }
-.purchase-gui.show {
-  max-height: 800px;
-  margin: 15px 0;
-  padding: 16px;
-  border: 1px solid #333;
+.modal-content {
+  background: #1e1e1e;
+  border-radius: 20px;
+  padding: 24px 20px;
+  max-width: 450px;
+  width: 90%;
+  border: 1px solid #00ff30;
+  text-align: left;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-content h3 {
+  text-align: center;
+  margin-top: 0;
+  color: #00ff30;
+}
+.modal-content label {
+  display: block;
+  margin: 10px 0 5px;
+}
+.modal-content .warning-box {
+  margin-top: 15px;
+}
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 .copy-toast { 
   position:fixed; 
@@ -250,7 +270,7 @@ h1 {
   border-radius:40px; 
   font-size:14px; 
   font-weight:bold; 
-  z-index:1000; 
+  z-index:1001; 
   opacity:0; 
   transition:opacity 0.2s; 
   pointer-events:none; 
@@ -286,12 +306,13 @@ footer {
   .prices { padding:8px; }
   .prices th, .prices td { padding:8px 5px; }
   .card { display:inline-block; margin:3px 0; white-space:nowrap; }
-  .btn-link, .purchase-btn, .see-products-btn, .hide-products-btn { width:100%; box-sizing:border-box; text-align:center; padding:10px; margin:5px 0; }
+  .btn-link, .purchase-btn, .toggle-products-btn { width:100%; box-sizing:border-box; text-align:center; padding:10px; margin:5px 0; }
   .select-input, .email-input { width:100%; max-width:100%; }
   .contact-email { padding:6px 12px; font-size:13px; }
   .note-box, .warning-box { padding:10px 12px; }
   h1 { margin-bottom:15px; }
   footer { margin-top: 40px; }
+  .modal-content { padding: 16px; }
 }
 </style>
 </head>
@@ -324,11 +345,11 @@ footer {
           <tr><th>Period</th><th>PayPal</th><th>Robux</th><th>UAH (Ukraine only)</th></tr>
         </thead>
         <tbody>
-          <tr><td>1 day key</th><td>$0.5</td><td>120 Robux</td><td>20 UAH</td></tr>
-          <tr><td>1 month key</th><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
-          <tr><td>3 months key</th><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
-          <tr><td>6 months key</th><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
-          <tr><td>12 months key</th><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
+          <tr><td>1 day key</th><td>$0.5</th><td>120 Robux</th><td>20 UAH</th></tr>
+          <tr><td>1 month key</th><td>$1</th><td>350 Robux</th><td>45 UAH</th></tr>
+          <tr><td>3 months key</th><td>$2.5</th><td>900 Robux</th><td>100 UAH</th></tr>
+          <tr><td>6 months key</th><td>$5</th><td>1400 Robux</th><td>200 UAH</th></tr>
+          <tr><td>1 year key</th><td>$10</th><td>2200 Robux</th><td>400 UAH</th></tr>
         </tbody>
       </table>
     </div>
@@ -345,29 +366,7 @@ footer {
     <p><em>If you use any of these bank cards, send the money from them to avoid taxes from sending money between different banks.</em></p>
 
     <h3>Robux:</h3>
-    <button id="seeProductsBtn" class="see-products-btn">See products</button>
-
-    <div id="purchaseGui" class="purchase-gui">
-      <div>
-        <label>Select product:</label>
-        <select id="productSelect" class="select-input">
-          <option value="1 day key">1 day key</option>
-          <option value="1 month key">1 month key</option>
-          <option value="3 months key">3 months key</option>
-          <option value="6 months key">6 months key</option>
-          <option value="12 months key">12 months key</option>
-        </select>
-      </div>
-      <div>
-        <label>Email:</label>
-        <input type="email" id="emailInput" class="email-input" placeholder="Enter a valid email.">
-      </div>
-      <div class="warning-box">
-        <strong>Warning:</strong> The product purchase confirmation will be sent to the email you'll enter above. It's not our fault if you paid for the product and the email didn't come because you entered an invalid or non-existing email. For more information about that, check out "Privacy policy" and "Terms & Conditions" sections. If you ran into this issue, please contact us by checking out "Contact us" section.
-      </div>
-      <button id="purchaseBtn" class="purchase-btn">Purchase</button>
-      <button id="hideProductsBtn" class="hide-products-btn">Hide products</button>
-    </div>
+    <button id="toggleProductsBtn" class="toggle-products-btn">See products</button>
 
     <div class="note-box">
       <strong>Note:</strong> After paying using PayPal or UAH, make a screenshot of the purchase or transaction and send it using any contact option in the "Contact us" section.
@@ -567,7 +566,30 @@ footer {
 
 <div id="copyToast" class="copy-toast">Copied!</div>
 
+<div id="productModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>Select product</h3>
+    <label>Product:</label>
+    <select id="productSelect" class="select-input">
+      <option value="Day">1 day key</option>
+      <option value="Month">1 month key</option>
+      <option value="ThreeMonths">3 months key</option>
+      <option value="SixMonths">6 months key</option>
+      <option value="Year">1 year key</option>
+    </select>
+    <label>Email:</label>
+    <input type="email" id="emailInput" class="email-input" placeholder="Enter a valid email.">
+    <div class="warning-box">
+      <strong>Warning:</strong> The product purchase confirmation will be sent to the email you'll enter above. It's not our fault if you paid for the product and the email didn't come because you entered an invalid or non-existing email. For more information about that, check out "Privacy policy" and "Terms & Conditions" sections. If you ran into this issue, please contact us by checking out "Contact us" section.
+    </div>
+    <div class="modal-buttons">
+      <button id="modalPurchaseBtn" class="purchase-btn">Purchase</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Tab switching
   const aboutBtn = document.getElementById("tab-about-btn");
   const contactBtn = document.getElementById("tab-contact-btn");
   const privacyBtn = document.getElementById("tab-privacy-btn");
@@ -586,7 +608,6 @@ footer {
     contactBtn.classList.remove("active");
     privacyBtn.classList.remove("active");
     termsBtn.classList.remove("active");
-
     if (tab === "about") {
       aboutTab.classList.add("active");
       aboutBtn.classList.add("active");
@@ -601,12 +622,12 @@ footer {
       termsBtn.classList.add("active");
     }
   }
-
   aboutBtn.onclick = () => switchTab("about");
   contactBtn.onclick = () => switchTab("contact");
   privacyBtn.onclick = () => switchTab("privacy");
   termsBtn.onclick = () => switchTab("terms");
 
+  // Copy card numbers
   const toast = document.getElementById("copyToast");
   let toastTimeout;
   function showToast() {
@@ -616,7 +637,6 @@ footer {
       toast.style.opacity = "0";
     }, 1500);
   }
-
   document.querySelectorAll(".card").forEach(card => {
     card.addEventListener("click", async function(e) {
       e.stopPropagation();
@@ -640,31 +660,51 @@ footer {
 
   document.getElementById("currentYear").textContent = new Date().getFullYear();
 
-  const seeBtn = document.getElementById("seeProductsBtn");
-  const gui = document.getElementById("purchaseGui");
-  const hideBtn = document.getElementById("hideProductsBtn");
-  const purchaseBtn = document.getElementById("purchaseBtn");
+  // Modal logic
+  const modal = document.getElementById("productModal");
+  const toggleBtn = document.getElementById("toggleProductsBtn");
+  const modalPurchaseBtn = document.getElementById("modalPurchaseBtn");
   const productSelect = document.getElementById("productSelect");
   const emailInput = document.getElementById("emailInput");
 
-  function showGui() {
-    gui.classList.add("show");
+  function isValidEmail(email) {
+    if (!email) return false;
+    if (email.includes(' ')) return false;
+    const atIndex = email.indexOf('@');
+    if (atIndex === -1) return false;
+    const dotIndex = email.lastIndexOf('.');
+    if (dotIndex === -1 || dotIndex < atIndex + 2) return false;
+    return true;
   }
-  function hideGui() {
-    gui.classList.remove("show");
-  }
-  seeBtn.onclick = showGui;
-  hideBtn.onclick = hideGui;
 
-  purchaseBtn.addEventListener("click", () => {
-    const selectedProduct = productSelect.value;
+  function openModal() {
+    modal.style.display = "flex";
+    toggleBtn.textContent = "Hide products";
+  }
+  function closeModal() {
+    modal.style.display = "none";
+    toggleBtn.textContent = "See products";
+  }
+  toggleBtn.onclick = () => {
+    if (modal.style.display === "flex") {
+      closeModal();
+    } else {
+      openModal();
+    }
+  };
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  modalPurchaseBtn.addEventListener("click", () => {
     const email = emailInput.value.trim();
-    if (!email) {
-      alert("Please enter a valid email address.");
+    if (!isValidEmail(email)) {
       return;
     }
+    const selectedProductDisplay = productSelect.options[productSelect.selectedIndex].text;
+    let productId = productSelect.value;
     const orderData = {
-      "Product": selectedProduct,
+      "Product": selectedProductDisplay,
       "Email": email
     };
     const jsonString = JSON.stringify(orderData);
@@ -673,8 +713,6 @@ footer {
     const finalLink = "https://www.roblox.com/games/start?launchData=" + encodedData + "&placeId=" + placeId;
     window.open(finalLink, "_blank");
     emailInput.value = "";
-    productSelect.selectedIndex = 0;
-    hideGui();
   });
 </script>
 
