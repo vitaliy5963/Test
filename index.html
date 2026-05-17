@@ -165,7 +165,7 @@ h1 {
   background:#00cc28;
   transform:scale(0.98);
 }
-.purchase-btn {
+.purchase-btn, .see-products-btn, .hide-products-btn {
   background:#00ff30;
   color:#000;
   padding:12px 20px;
@@ -174,23 +174,30 @@ h1 {
   border:none;
   cursor:pointer;
   font-size:clamp(14px, 4vw, 16px);
-  margin-top:15px;
+  margin:10px 5px;
   transition:0.2s;
 }
-.purchase-btn:active {
+.purchase-btn:active, .see-products-btn:active, .hide-products-btn:active {
   background:#00cc28;
   transform:scale(0.98);
 }
+.hide-products-btn {
+  background:#ff4444;
+  color:#fff;
+}
+.hide-products-btn:active {
+  background:#cc0000;
+}
 .warning-box { 
-  background:#2a1a1a; 
-  border-left:5px solid #ff6600; 
+  background:#2a0a0a; 
+  border-left:5px solid #ff0000; 
   padding:14px 16px; 
   margin:20px 0 10px; 
   border-radius:12px; 
-  color:#ffaa66;
+  color:#ff9999;
 }
 .warning-box strong { 
-  color:#ff8844; 
+  color:#ff0000; 
 }
 .select-input, .email-input {
   width:100%;
@@ -216,6 +223,21 @@ h1 {
 }
 .note-box strong { 
   color:#ffaa00; 
+}
+.purchase-gui {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, margin 0.2s ease;
+  margin: 0;
+  background: #1e1e1e;
+  border-radius: 16px;
+  padding: 0 16px;
+}
+.purchase-gui.show {
+  max-height: 800px;
+  margin: 15px 0;
+  padding: 16px;
+  border: 1px solid #333;
 }
 .copy-toast { 
   position:fixed; 
@@ -264,7 +286,7 @@ footer {
   .prices { padding:8px; }
   .prices th, .prices td { padding:8px 5px; }
   .card { display:inline-block; margin:3px 0; white-space:nowrap; }
-  .btn-link, .purchase-btn { width:100%; box-sizing:border-box; text-align:center; padding:10px; }
+  .btn-link, .purchase-btn, .see-products-btn, .hide-products-btn { width:100%; box-sizing:border-box; text-align:center; padding:10px; margin:5px 0; }
   .select-input, .email-input { width:100%; max-width:100%; }
   .contact-email { padding:6px 12px; font-size:13px; }
   .note-box, .warning-box { padding:10px 12px; }
@@ -302,10 +324,11 @@ footer {
           <tr><th>Period</th><th>PayPal</th><th>Robux</th><th>UAH (Ukraine only)</th></tr>
         </thead>
         <tbody>
-          <tr><td>One month</td><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
-          <tr><td>Three months</td><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
-          <tr><td>Six months</td><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
-          <tr><td>A year</td><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
+          <tr><td>1 day key</th><td>$0.5</td><td>120 Robux</td><td>20 UAH</td></tr>
+          <tr><td>1 month key</th><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
+          <tr><td>3 months key</th><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
+          <tr><td>6 months key</th><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
+          <tr><td>12 months key</th><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
         </tbody>
       </table>
     </div>
@@ -322,23 +345,29 @@ footer {
     <p><em>If you use any of these bank cards, send the money from them to avoid taxes from sending money between different banks.</em></p>
 
     <h3>Robux:</h3>
-    <div>
-      <select id="productSelect" class="select-input">
-        <option value="1 day key">1 day key</option>
-        <option value="1 month key">1 month key</option>
-        <option value="3 months key">3 months key</option>
-        <option value="6 months key">6 months key</option>
-        <option value="12 months key">12 months key</option>
-      </select>
+    <button id="seeProductsBtn" class="see-products-btn">See products</button>
+
+    <div id="purchaseGui" class="purchase-gui">
+      <div>
+        <label>Select product:</label>
+        <select id="productSelect" class="select-input">
+          <option value="1 day key">1 day key</option>
+          <option value="1 month key">1 month key</option>
+          <option value="3 months key">3 months key</option>
+          <option value="6 months key">6 months key</option>
+          <option value="12 months key">12 months key</option>
+        </select>
+      </div>
+      <div>
+        <label>Email:</label>
+        <input type="email" id="emailInput" class="email-input" placeholder="Enter a valid email.">
+      </div>
+      <div class="warning-box">
+        <strong>Warning:</strong> The product purchase confirmation will be sent to the email you'll enter above. It's not our fault if you paid for the product and the email didn't come because you entered an invalid or non-existing email. For more information about that, check out "Privacy policy" and "Terms & Conditions" sections. If you ran into this issue, please contact us by checking out "Contact us" section.
+      </div>
+      <button id="purchaseBtn" class="purchase-btn">Purchase</button>
+      <button id="hideProductsBtn" class="hide-products-btn">Hide products</button>
     </div>
-    <div>
-      <label style="display:block; margin-top:10px;">Email:</label>
-      <input type="email" id="emailInput" class="email-input" placeholder="Enter a valid email.">
-    </div>
-    <div class="warning-box">
-      <strong>Warning:</strong> The product purchase confirmation will be sent to the email you'll enter above. It's not our fault if you paid for the product and the email didn't come because you entered an invalid or non-existing email. For more information about that, check out "Privacy policy" and "Terms & Conditions" sections. If you ran into this issue, please contact us by checking out "Contact us" section.
-    </div>
-    <button id="purchaseBtn" class="purchase-btn">Purchase</button>
 
     <div class="note-box">
       <strong>Note:</strong> After paying using PayPal or UAH, make a screenshot of the purchase or transaction and send it using any contact option in the "Contact us" section.
@@ -611,9 +640,21 @@ footer {
 
   document.getElementById("currentYear").textContent = new Date().getFullYear();
 
+  const seeBtn = document.getElementById("seeProductsBtn");
+  const gui = document.getElementById("purchaseGui");
+  const hideBtn = document.getElementById("hideProductsBtn");
   const purchaseBtn = document.getElementById("purchaseBtn");
   const productSelect = document.getElementById("productSelect");
   const emailInput = document.getElementById("emailInput");
+
+  function showGui() {
+    gui.classList.add("show");
+  }
+  function hideGui() {
+    gui.classList.remove("show");
+  }
+  seeBtn.onclick = showGui;
+  hideBtn.onclick = hideGui;
 
   purchaseBtn.addEventListener("click", () => {
     const selectedProduct = productSelect.value;
@@ -633,6 +674,7 @@ footer {
     window.open(finalLink, "_blank");
     emailInput.value = "";
     productSelect.selectedIndex = 0;
+    hideGui();
   });
 </script>
 
