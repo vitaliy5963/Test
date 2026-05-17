@@ -74,6 +74,7 @@
 <script>
 (function() {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
+  const PROXY_URL = "https://corsproxy.io/";
   const JUST2EARN_API = "https://just2earn.com/api";
   const API_KEY = "88cf35e854d80b20aa97506d0b88dfb67186cdf7";
   const STORAGE_TEMP_KEY = "icraftpe_temp_key";
@@ -123,12 +124,24 @@
     localStorage.removeItem(STORAGE_SHORT_URL);
   }
 
-  async function fetchTempKey() {
-    const response = await fetch(`${SCRIPT_URL}?action=generate_temp`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" }
+  async function fetchWithProxy(url, options = {}) {
+    const proxyTarget = PROXY_URL + "?" + encodeURIComponent(url);
+    const response = await fetch(proxyTarget, {
+      method: options.method || "GET",
+      headers: options.headers || {},
+      body: options.body || null
     });
-    const data = await response.json();
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new Error("Invalid JSON response from proxy");
+    }
+  }
+
+  async function fetchTempKey() {
+    const tempUrl = SCRIPT_URL + "?action=generate_temp";
+    const data = await fetchWithProxy(tempUrl);
     if (!data.success || !data.temporary_key) {
       throw new Error("Failed to generate temporary key");
     }
@@ -148,15 +161,18 @@
   }
 
   async function generateFinalKey(tempKey) {
+    const postUrl = SCRIPT_URL;
     const body = new URLSearchParams();
     body.append("action", "generate_key");
     body.append("temporary_key", tempKey);
-    const resp = await fetch(SCRIPT_URL, {
+    const proxyTarget = PROXY_URL + "?" + encodeURIComponent(postUrl);
+    const response = await fetch(proxyTarget, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString()
     });
-    const data = await resp.json();
+    const text = await response.text();
+    const data = JSON.parse(text);
     if (!data.success || !data.key) {
       throw new Error("Key generation failed");
     }
@@ -179,6 +195,7 @@
           btn.onclick = () => {
             window.open(existingShort, "_blank");
           };
+          return;
         } else {
           btn.textContent = "Processing...";
           btn.disabled = true;
