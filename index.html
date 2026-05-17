@@ -345,11 +345,11 @@ footer {
           <tr><th>Period</th><th>PayPal</th><th>Robux</th><th>UAH (Ukraine only)</th></tr>
         </thead>
         <tbody>
-          <tr><td>1 day key</th><td>$0.5</th><td>120 Robux</th><td>20 UAH</th></tr>
-          <tr><td>1 month key</th><td>$1</th><td>350 Robux</th><td>45 UAH</th></tr>
-          <tr><td>3 months key</th><td>$2.5</th><td>900 Robux</th><td>100 UAH</th></tr>
-          <tr><td>6 months key</th><td>$5</th><td>1400 Robux</th><td>200 UAH</th></tr>
-          <tr><td>1 year key</th><td>$10</th><td>2200 Robux</th><td>400 UAH</th></tr>
+          <tr><td>1 day key</td><td>$0.5</td><td>120 Robux</td><td>20 UAH</td></tr>
+          <tr><td>1 month key</td><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
+          <tr><td>3 months key</td><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
+          <tr><td>6 months key</td><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
+          <tr><td>1 year key</td><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
         </tbody>
       </table>
     </div>
@@ -366,7 +366,7 @@ footer {
     <p><em>If you use any of these bank cards, send the money from them to avoid taxes from sending money between different banks.</em></p>
 
     <h3>Robux:</h3>
-    <button id="toggleProductsBtn" class="toggle-products-btn">See products</button>
+    <button id="toggleProductsBtn" class="toggle-products-btn">Click here</button>
 
     <div class="note-box">
       <strong>Note:</strong> After paying using PayPal or UAH, make a screenshot of the purchase or transaction and send it using any contact option in the "Contact us" section.
@@ -568,7 +568,7 @@ footer {
 
 <div id="productModal" class="modal-overlay">
   <div class="modal-content">
-    <h3>Select product</h3>
+    <h3>Select product:</h3>
     <label>Product:</label>
     <select id="productSelect" class="select-input">
       <option value="Day">1 day key</option>
@@ -589,7 +589,6 @@ footer {
 </div>
 
 <script>
-  // Tab switching
   const aboutBtn = document.getElementById("tab-about-btn");
   const contactBtn = document.getElementById("tab-contact-btn");
   const privacyBtn = document.getElementById("tab-privacy-btn");
@@ -627,7 +626,6 @@ footer {
   privacyBtn.onclick = () => switchTab("privacy");
   termsBtn.onclick = () => switchTab("terms");
 
-  // Copy card numbers
   const toast = document.getElementById("copyToast");
   let toastTimeout;
   function showToast() {
@@ -660,7 +658,6 @@ footer {
 
   document.getElementById("currentYear").textContent = new Date().getFullYear();
 
-  // Modal logic
   const modal = document.getElementById("productModal");
   const toggleBtn = document.getElementById("toggleProductsBtn");
   const modalPurchaseBtn = document.getElementById("modalPurchaseBtn");
@@ -679,19 +676,11 @@ footer {
 
   function openModal() {
     modal.style.display = "flex";
-    toggleBtn.textContent = "Hide products";
   }
   function closeModal() {
     modal.style.display = "none";
-    toggleBtn.textContent = "See products";
   }
-  toggleBtn.onclick = () => {
-    if (modal.style.display === "flex") {
-      closeModal();
-    } else {
-      openModal();
-    }
-  };
+  toggleBtn.onclick = openModal;
   modal.addEventListener("click", (e) => {
     if (e.target === modal) closeModal();
   });
