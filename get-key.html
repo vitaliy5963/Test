@@ -80,10 +80,23 @@ p { margin-top:20px; font-size:18px; }
     const destinationUrl = `https://vitaliy5963.github.io/get-key.html?temporary_key=${encodeURIComponent(tempKey)}`;
     const alias = randomAlias(20);
     const requestUrl = `${SHORTENER_API}?api=${API_KEY}&url=${encodeURIComponent(destinationUrl)}&alias=${alias}`;
-    const resp = await fetch(requestUrl, { method: "GET" });
-    const json = await resp.json();
+    
+    const response = await fetch(requestUrl, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Referer": "https://vitaliy5963.github.io/"
+      }
+    });
+    
+    if (response.status === 403) {
+      throw new Error("API access forbidden - please check your API key or contact support.");
+    }
+    
+    const json = await response.json();
     if (json.status !== "success" || !json.shortenedUrl) {
-      throw new Error("Shortening failed");
+      throw new Error("Shortening failed: " + (json.message || "unknown error"));
     }
     return json.shortenedUrl;
   }
