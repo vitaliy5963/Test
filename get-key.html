@@ -124,26 +124,31 @@
     localStorage.removeItem(STORAGE_SHORT_URL);
   }
 
-  async function fetchWithProxy(url, options = {}) {
-    const proxyTarget = PROXY_URL + "?" + encodeURIComponent(url);
-    const response = await fetch(proxyTarget, {
-      method: options.method || "GET",
-      headers: options.headers || {},
-      body: options.body || null
-    });
+  async function fetchWithProxy(url, method = "GET", body = null) {
+    const encodedUrl = encodeURIComponent(url);
+    const proxyTarget = PROXY_URL + "?" + encodedUrl;
+    const options = {
+      method: method,
+      headers: {}
+    };
+    if (method === "POST" && body) {
+      options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      options.body = body;
+    }
+    const response = await fetch(proxyTarget, options);
     const text = await response.text();
     try {
       return JSON.parse(text);
     } catch (e) {
-      throw new Error("Invalid JSON response from proxy");
+      throw new Error("Invalid JSON response from proxy: " + text.substring(0, 200));
     }
   }
 
   async function fetchTempKey() {
     const tempUrl = SCRIPT_URL + "?action=generate_temp";
-    const data = await fetchWithProxy(tempUrl);
+    const data = await fetchWithProxy(tempUrl, "GET");
     if (!data.success || !data.temporary_key) {
-      throw new Error("Failed to generate temporary key");
+      throw new Error("Failed to generate temporary key: " + (data.message || "unknown error"));
     }
     return data.temporary_key;
   }
@@ -162,19 +167,12 @@
 
   async function generateFinalKey(tempKey) {
     const postUrl = SCRIPT_URL;
-    const body = new URLSearchParams();
-    body.append("action", "generate_key");
-    body.append("temporary_key", tempKey);
-    const proxyTarget = PROXY_URL + "?" + encodeURIComponent(postUrl);
-    const response = await fetch(proxyTarget, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString()
-    });
-    const text = await response.text();
-    const data = JSON.parse(text);
+    const bodyParams = new URLSearchParams();
+    bodyParams.append("action", "generate_key");
+    bodyParams.append("temporary_key", tempKey);
+    const data = await fetchWithProxy(postUrl, "POST", bodyParams.toString());
     if (!data.success || !data.key) {
-      throw new Error("Key generation failed");
+      throw new Error("Key generation failed: " + (data.message || "unknown error"));
     }
     return data.key;
   }
@@ -229,6 +227,7 @@
           window.open(shortUrl, "_blank");
         };
       } catch (err) {
+        console.error(err);
         btn.textContent = "Error, try again";
         btn.disabled = false;
         btn.onclick = () => location.reload();
@@ -258,6 +257,7 @@
           navigator.clipboard.writeText(finalKey);
         };
       } catch (err) {
+        console.error(err);
         btn.textContent = "Error";
         btn.disabled = false;
       }
