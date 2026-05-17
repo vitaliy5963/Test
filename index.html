@@ -345,11 +345,11 @@ footer {
           <tr><th>Period</th><th>PayPal</th><th>Robux</th><th>UAH (Ukraine only)</th></tr>
         </thead>
         <tbody>
-          <tr><td>1 day key</td><td>$0.5</td><td>120 Robux</td><td>20 UAH</td></tr>
-          <tr><td>1 month key</td><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
-          <tr><td>3 months key</td><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
-          <tr><td>6 months key</td><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
-          <tr><td>1 year key</td><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
+          <tr><td style="white-space: nowrap;">1 day key</td><td>$0.5</td><td>120 Robux</td><td>20 UAH</td></tr>
+          <tr><td style="white-space: nowrap;">1 month key</td><td>$1</td><td>350 Robux</td><td>45 UAH</td></tr>
+          <tr><td style="white-space: nowrap;">3 months key</td><td>$2.5</td><td>900 Robux</td><td>100 UAH</td></tr>
+          <tr><td style="white-space: nowrap;">6 months key</td><td>$5</td><td>1400 Robux</td><td>200 UAH</td></tr>
+          <tr><td style="white-space: nowrap;">1 year key</td><td>$10</td><td>2200 Robux</td><td>400 UAH</td></tr>
         </tbody>
       </table>
     </div>
@@ -690,10 +690,9 @@ footer {
     if (!isValidEmail(email)) {
       return;
     }
-    const selectedProductDisplay = productSelect.options[productSelect.selectedIndex].text;
-    let productId = productSelect.value;
+    const productId = productSelect.value;
     const orderData = {
-      "Product": selectedProductDisplay,
+      "Product": productId,
       "Email": email
     };
     const jsonString = JSON.stringify(orderData);
