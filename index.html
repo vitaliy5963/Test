@@ -55,7 +55,7 @@ h1 {
 }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
-.about-container, .privacy-container { 
+.about-container, .privacy-container, .terms-container { 
   max-width:800px; 
   margin:0 auto; 
   text-align:left; 
@@ -66,27 +66,27 @@ h1 {
   width:100%; 
   overflow-x:auto;
 }
-.about-container h2, .privacy-container h2 { 
+.about-container h2, .privacy-container h2, .terms-container h2 { 
   color:#00ff30; 
   text-align:center; 
   margin-top:0; 
   font-size:clamp(22px, 6vw, 30px); 
 }
-.about-container h3, .privacy-container h3 { 
+.about-container h3, .privacy-container h3, .terms-container h3 { 
   color:#00ff30; 
   margin:24px 0 12px 0; 
   font-size:clamp(18px, 5vw, 22px); 
 }
-.about-container p, .privacy-container p { 
+.about-container p, .privacy-container p, .terms-container p { 
   margin:12px 0; 
   line-height:1.5; 
   font-size:clamp(14px, 4vw, 16px); 
 }
-.about-container ul, .privacy-container ul { 
+.about-container ul, .privacy-container ul, .terms-container ul { 
   padding-left:20px; 
   margin:10px 0;
 }
-.about-container li, .privacy-container li { 
+.about-container li, .privacy-container li, .terms-container li { 
   margin:8px 0; 
   font-size:clamp(14px, 4vw, 16px); 
 }
@@ -202,10 +202,15 @@ footer {
   width: 100%;
   text-align: center;
 }
+.centered-date {
+  text-align: center;
+  font-style: italic;
+  margin: 10px 0 20px;
+}
 @media (max-width: 550px) {
   body { padding:15px 10px; }
   .tab-button { padding:6px 14px; font-size:14px; }
-  .about-container, .privacy-container { padding:15px 12px; }
+  .about-container, .privacy-container, .terms-container { padding:15px 12px; }
   .prices { padding:8px; }
   .prices th, .prices td { padding:8px 5px; }
   .card { display:inline-block; margin:3px 0; white-space:nowrap; }
@@ -224,6 +229,7 @@ footer {
   <button id="tab-about-btn" class="tab-button active">ICraftPe store</button>
   <button id="tab-contact-btn" class="tab-button">Contact us</button>
   <button id="tab-privacy-btn" class="tab-button">Privacy policy</button>
+  <button id="tab-terms-btn" class="tab-button">Terms & Conditions</button>
 </div>
 
 <div id="about-tab" class="tab-content active">
@@ -291,7 +297,7 @@ footer {
   <div class="privacy-container">
     <h2>Privacy policy</h2>
     <p><strong>Your privacy is important to us. This policy explains how ICraftPe store handles your data.</strong></p>
-    <p><em>Last updated: 17th of May, 2026</em></p>
+    <div class="centered-date"><em>Last updated: 17th of May, 2026</em></div>
 
     <h3>1. Overview</h3>
     <p>ICraftPe store ("we," "our," or "us") is committed to protecting your privacy. This privacy policy explains how we collect, use, and safeguard your information when you use our website and tools.</p>
@@ -362,6 +368,104 @@ footer {
   </div>
 </div>
 
+<div id="terms-tab" class="tab-content">
+  <div class="terms-container">
+    <h2>Terms & Conditions</h2>
+    <p><strong>Please read these Terms carefully before using ICraftPe store.</strong></p>
+    <div class="centered-date"><em>Last updated: 17th of May, 2026</em></div>
+
+    <h3>1. Agreement to Terms</h3>
+    <p>By accessing and using ICraftPe store ("the Service"), you agree to be bound by these Terms and Conditions ("Terms"). If you disagree with any part of these terms, you may not access the Service.</p>
+    <p>These Terms apply to all visitors, users, and others who access or use the Service.</p>
+
+    <h3>2. Description of Service</h3>
+    <p>ICraftPe store is a store, which allows users to:</p>
+    <ul>
+      <li>Purchase various products, such as keys</li>
+      <li>Manage and purchase keys</li>
+    </ul>
+    <p>The service doesn't store your data. We do not store, share, use, or transmit most your information to our databases.</p>
+
+    <h3>3. Acceptable use</h3>
+    <p>You agree to use ICraftPe store only for lawful purposes. You agree NOT to:</p>
+    <ul>
+      <li>Use the Service to violate any laws or regulations</li>
+      <li>Upload or process information that infringes on intellectual property rights</li>
+      <li>Attempt to circumvent, disable, or interfere with security features</li>
+      <li>Use automated systems to access the Service in a manner that exceeds reasonable use</li>
+      <li>Transmit viruses, malware, or other malicious code</li>
+      <li>Attempt to gain unauthorized access to any part of the Service</li>
+      <li>Use the Service to harass, abuse, or harm others</li>
+    </ul>
+
+    <h3>4. Intellectual property</h3>
+    <p><strong>Our content</strong><br>The Service and its original content, features, and functionality are owned by ICraftPe store and are protected by international copyright, trademark, and other intellectual property laws.</p>
+    <p><strong>Your content</strong><br>You retain all rights to any content you process using our service. By using our Service, you represent that you have the right to use any content you input (emails, transactions, text).</p>
+    <p><strong>Third-party content</strong><br>Roblox games accessed through our service remain the property of their respective owners. Our Service does not grant you any rights to third-party content.</p>
+
+    <h3>5. User responsibilities</h3>
+    <p>You are responsible for:</p>
+    <ul>
+      <li>Ensuring you have the right to use any content you provide to our service</li>
+      <li>Respecting copyright and intellectual property rights</li>
+      <li>Maintaining the security of your device and browser</li>
+      <li>Any actions taken using our Service</li>
+    </ul>
+
+    <h3>6. Disclaimer of warranties</h3>
+    <p>THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. ICRAFTPE STORE MAKES NO WARRANTIES, EXPRESSED OR IMPLIED, AND HEREBY DISCLAIMS ALL WARRANTIES INCLUDING:</p>
+    <ul>
+      <li>Merchantability and fitness for a particular purpose</li>
+      <li>That the Service will be uninterrupted, secure, or error-free</li>
+      <li>That results obtained will be accurate or reliable</li>
+      <li>That any errors will be corrected</li>
+    </ul>
+    <p>You understand that you use the Service at your own risk.</p>
+
+    <h3>7. Limitation of liability</h3>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, ICRAFTPE STORE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO:</p>
+    <ul>
+      <li>Loss of profits, data, or other intangible losses</li>
+      <li>Interruption or cessation of the Service</li>
+      <li>Bugs or errors transmitted through the Service</li>
+      <li>Any content obtained from using the Service</li>
+    </ul>
+
+    <h3>8. Third-party Services</h3>
+    <p>Our Service integrates with third-party Services including:</p>
+    <ul>
+      <li>Roblox: Any action during the Robux purchase method is subject to Roblox's Terms of Service</li>
+      <li>Advertising partners: Ad display subject to their respective policies</li>
+    </ul>
+    <p>We are not responsible for the content, policies, or practices of third-party services.</p>
+
+    <h3>9. Modifications to Service</h3>
+    <p>We reserve the right to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice. We shall not be liable to you or any third party for any modification, suspension, or discontinuance of the Service.</p>
+
+    <h3>10. Refund policy</h3>
+    <p>After you received, and additionally, redeemed the purchased product, a refund will not be possible. However, there may be exceptions based on the situation. All purchases made with Robux are non-refundable.</p>
+    <p>We have all rights to take away your product if it will be used to break the Terms.</p>
+
+    <h3>11. Changes to Terms</h3>
+    <p>We reserve the right to modify these Terms at any time. Changes will be posted on this page with an updated "Last updated" date and time. Your continued use of the Service after changes constitutes acceptance of the new Terms.</p>
+    <p>We encourage you to review these Terms periodically for any changes.</p>
+
+    <h3>12. Termination</h3>
+    <p>We may terminate or suspend your access to the Service immediately, without prior notice, for any reason, including breach of these Terms.</p>
+    <p>Upon termination, your right to use the Service will immediately cease.</p>
+
+    <h3>13. Governing Law</h3>
+    <p>These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles.</p>
+    <p>Any disputes arising from these Terms or use of the Service will be resolved through appropriate legal channels.</p>
+
+    <h3>14. Severability</h3>
+    <p>If any provision of these Terms is found to be unenforceable or invalid, that provision will be limited or eliminated to the minimum extent necessary, and the remaining provisions will remain in full force and effect.</p>
+
+    <h3>15. Contact us</h3>
+    <p>If you have questions about this privacy policy or our data practices, please contact us by checking out "Contact us" section.</p>
+  </div>
+</div>
+
 <footer>
   <p>© <span id="currentYear"></span> ICraftPe store. All rights reserved.</p>
 </footer>
@@ -372,17 +476,21 @@ footer {
   const aboutBtn = document.getElementById("tab-about-btn");
   const contactBtn = document.getElementById("tab-contact-btn");
   const privacyBtn = document.getElementById("tab-privacy-btn");
+  const termsBtn = document.getElementById("tab-terms-btn");
   const aboutTab = document.getElementById("about-tab");
   const contactTab = document.getElementById("contact-tab");
   const privacyTab = document.getElementById("privacy-tab");
+  const termsTab = document.getElementById("terms-tab");
 
   function switchTab(tab) {
     aboutTab.classList.remove("active");
     contactTab.classList.remove("active");
     privacyTab.classList.remove("active");
+    termsTab.classList.remove("active");
     aboutBtn.classList.remove("active");
     contactBtn.classList.remove("active");
     privacyBtn.classList.remove("active");
+    termsBtn.classList.remove("active");
 
     if (tab === "about") {
       aboutTab.classList.add("active");
@@ -393,12 +501,16 @@ footer {
     } else if (tab === "privacy") {
       privacyTab.classList.add("active");
       privacyBtn.classList.add("active");
+    } else if (tab === "terms") {
+      termsTab.classList.add("active");
+      termsBtn.classList.add("active");
     }
   }
 
   aboutBtn.onclick = () => switchTab("about");
   contactBtn.onclick = () => switchTab("contact");
   privacyBtn.onclick = () => switchTab("privacy");
+  termsBtn.onclick = () => switchTab("terms");
 
   const toast = document.getElementById("copyToast");
   let toastTimeout;
