@@ -13,19 +13,30 @@ p { margin-top:20px; font-size:18px; }
 </head>
 <body>
 <h1>Key system</h1>
-<p>Click the button below to get your key for the script.</p>
-<button id="btn">Get key</button>
+<div id="mainContent"></div>
 
 <script>
 (function() {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
+  const JUST2EARN_API = "https://just2earn.com/api";
+  const API_KEY = "88cf35e854d80b20aa97506d0b88dfb67186cdf7";
   const STORAGE_TEMP_KEY = "icraftpe_temp_key";
   const STORAGE_EXPIRY = "icraftpe_temp_expiry";
+  const STORAGE_SHORT_URL = "icraftpe_short_url";
   const ONE_HOUR_MS = 60 * 60 * 1000;
 
   const urlParams = new URLSearchParams(window.location.search);
   const incomingTempKey = urlParams.get("temporary_key");
-  const btn = document.getElementById("btn");
+  const container = document.getElementById("mainContent");
+
+  function randomAlias(length) {
+    let result = "";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
 
   function isTempValid() {
     const expiry = localStorage.getItem(STORAGE_EXPIRY);
@@ -42,9 +53,140 @@ p { margin-top:20px; font-size:18px; }
     localStorage.setItem(STORAGE_EXPIRY, (Date.now() + expiryMs).toString());
   }
 
+  function storeShortUrl(url) {
+    localStorage.setItem(STORAGE_SHORT_URL, url);
+  }
+
+  function getStoredShortUrl() {
+    return localStorage.getItem(STORAGE_SHORT_URL);
+  }
+
   function clearTempData() {
     localStorage.removeItem(STORAGE_TEMP_KEY);
     localStorage.removeItem(STORAGE_EXPIRY);
+    localStorage.removeItem(STORAGE_SHORT_URL);
+  }
+
+  async function fetchTempKey() {
+    const response = await fetch(SCRIPT_URL + "?action=generate_temp");
+    const data = await response.json();
+    if (!data.success || !data.temporary_key) {
+      throw new Error("Failed to generate temporary key");
+    }
+    return data.temporary_key;
+  }
+
+  async function createShortenedUrl(tempKey) {
+    const destinationUrl = `https://vitaliy5963.github.io/get-key.html?temporary_key=${encodeURIComponent(tempKey)}`;
+    const alias = randomAlias(20);
+    const requestUrl = `${JUST2EARN_API}?api=${API_KEY}&url=${encodeURIComponent(destinationUrl)}&alias=${alias}`;
+    const resp = await fetch(requestUrl, { method: "GET" });
+    const json = await resp.json();
+    if (json.status !== "success" || !json.shortenedUrl) {
+      throw new Error("Shortening failed");
+    }
+    return json.shortenedUrl;
+  }
+
+  async function generateFinalKey(tempKey) {
+    const body = new URLSearchParams();
+    body.append("action", "generate_key");
+    body.append("temporary_key", tempKey);
+    const response = await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString()
+    });
+    const data = await response.json();
+    if (!data.success || !data.key) {
+      throw new Error("Key generation failed");
+    }
+    return data.key;
+  }
+
+  function renderGetKeyPage() {
+    container.innerHTML = `
+      <p>Click the button below to get your key for the script.</p>
+      <button id="actionBtn">Get key</button>
+    `;
+    const btn = document.getElementById("actionBtn");
+    if (!btn) return;
+    btn.onclick = async () => {
+      if (isTempValid()) {
+        const existingShort = getStoredShortUrl();
+        if (existingShort) {
+          btn.textContent = "Open task";
+          btn.onclick = () => {
+            window.open(existingShort, "_blank");
+          };
+          return;
+        } else {
+          btn.textContent = "Processing...";
+          btn.disabled = true;
+          try {
+            const tempKey = getStoredTempKey();
+            const shortUrl = await createShortenedUrl(tempKey);
+            storeShortUrl(shortUrl);
+            btn.textContent = "Open task";
+            btn.disabled = false;
+            btn.onclick = () => {
+              window.open(shortUrl, "_blank");
+            };
+          } catch (err) {
+            btn.textContent = "Error, try again";
+            btn.disabled = false;
+            btn.onclick = () => location.reload();
+          }
+        }
+        return;
+      }
+      btn.textContent = "Processing...";
+      btn.disabled = true;
+      try {
+        const newTempKey = await fetchTempKey();
+        storeTempKey(newTempKey, ONE_HOUR_MS);
+        const shortUrl = await createShortenedUrl(newTempKey);
+        storeShortUrl(shortUrl);
+        btn.textContent = "Open task";
+        btn.disabled = false;
+        btn.onclick = () => {
+          window.open(shortUrl, "_blank");
+        };
+      } catch (err) {
+        btn.textContent = "Error, try again";
+        btn.disabled = false;
+        btn.onclick = () => location.reload();
+      }
+    };
+  }
+
+  function renderKeyGeneratorPage(tempKey) {
+    container.innerHTML = `
+      <p>Click the button below to get your key for the script.</p>
+      <button id="actionBtn">Get key</button>
+    `;
+    const btn = document.getElementById("actionBtn");
+    if (!btn) return;
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Generating the key...";
+      await new Promise(r => setTimeout(r, 3000));
+      try {
+        const finalKey = await generateFinalKey(tempKey);
+        const p = document.createElement("p");
+        p.textContent = "Key: " + finalKey;
+        container.insertBefore(p, btn);
+        btn.textContent = "Copy key";
+        btn.disabled = false;
+        btn.onclick = () => {
+          navigator.clipboard.writeText(finalKey);
+        };
+        clearTempData();
+      } catch (err) {
+        btn.textContent = "Error";
+        btn.disabled = false;
+      }
+    };
   }
 
   function validateReferrer() {
@@ -65,55 +207,17 @@ p { margin-top:20px; font-size:18px; }
     return stored === key;
   }
 
-  async function generateFinalKey(tempKey) {
-    const body = new URLSearchParams();
-    body.append("action", "generate_key");
-    body.append("temporary_key", tempKey);
-    const response = await fetch(SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString()
-    });
-    const data = await response.json();
-    if (!data.success || !data.key) {
-      throw new Error("Key generation failed");
-    }
-    return data.key;
-  }
-
   if (incomingTempKey) {
     if (!validateReferrer()) {
-      btn.textContent = "Error: Invalid access";
-      btn.disabled = true;
+      container.innerHTML = `<p>Error: Invalid access. Please use the task link from the previous step.</p>`;
     } else if (!validateLocalTemp(incomingTempKey)) {
-      btn.textContent = "Error: Temporary key expired";
-      btn.disabled = true;
+      container.innerHTML = `<p>Error: Temporary key expired or invalid. Please restart the process.</p>`;
       clearTempData();
     } else {
-      btn.onclick = async () => {
-        btn.disabled = true;
-        btn.textContent = "Generating the key...";
-        await new Promise(r => setTimeout(r, 3000));
-        try {
-          const finalKey = await generateFinalKey(incomingTempKey);
-          const p = document.createElement("p");
-          p.textContent = "Key: " + finalKey;
-          document.body.insertBefore(p, btn);
-          btn.textContent = "Copy key";
-          btn.disabled = false;
-          btn.onclick = () => {
-            navigator.clipboard.writeText(finalKey);
-          };
-          clearTempData();
-        } catch (err) {
-          btn.textContent = "Error";
-          btn.disabled = false;
-        }
-      };
+      renderKeyGeneratorPage(incomingTempKey);
     }
   } else {
-    btn.textContent = "Error: No temporary key";
-    btn.disabled = true;
+    renderGetKeyPage();
   }
 })();
 </script>
