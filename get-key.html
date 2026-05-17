@@ -18,8 +18,8 @@ p { margin-top:20px; font-size:18px; }
 <script>
 (function() {
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx--OgNP1wF1d1gHtbAy7fFs7vVaB1BpfGiz-KD9D5e61vKssaTtYCcSa3y_IDHAfuv3w/exec";
-  const JUST2EARN_API = "https://just2earn.com/api";
-  const API_KEY = "88cf35e854d80b20aa97506d0b88dfb67186cdf7";
+  const SHORTENER_API = "https://yorurl.com/api";
+  const API_KEY = "b72914a809cfcba9311f24c6caa06a74d41a90d8";
   const STORAGE_TEMP_KEY = "icraftpe_temp_key";
   const STORAGE_EXPIRY = "icraftpe_temp_expiry";
   const STORAGE_SHORT_URL = "icraftpe_short_url";
@@ -79,7 +79,7 @@ p { margin-top:20px; font-size:18px; }
   async function createShortenedUrl(tempKey) {
     const destinationUrl = `https://vitaliy5963.github.io/get-key.html?temporary_key=${encodeURIComponent(tempKey)}`;
     const alias = randomAlias(20);
-    const requestUrl = `${JUST2EARN_API}?api=${API_KEY}&url=${encodeURIComponent(destinationUrl)}&alias=${alias}`;
+    const requestUrl = `${SHORTENER_API}?api=${API_KEY}&url=${encodeURIComponent(destinationUrl)}&alias=${alias}`;
     const resp = await fetch(requestUrl, { method: "GET" });
     const json = await resp.json();
     if (json.status !== "success" || !json.shortenedUrl) {
@@ -194,7 +194,7 @@ p { margin-top:20px; font-size:18px; }
     if (!referrer) return false;
     try {
       const url = new URL(referrer);
-      return url.hostname === "go.just2earn.com";
+      return url.hostname === "go.yorurl.com";
     } catch (e) {
       return false;
     }
