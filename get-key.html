@@ -2,13 +2,59 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Key system</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5252606552651648" crossorigin="anonymous"></script>
 <style>
-body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:60px; }
-button { padding:15px 30px; font-size:16px; border-radius:12px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
-button:disabled { opacity:0.6; cursor:not-allowed; }
-p { margin-top:20px; font-size:18px; }
+body {
+  background: #111;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px 12px;
+  margin: 0;
+}
+h1 {
+  font-size: clamp(24px, 6vw, 36px);
+  margin-bottom: 20px;
+}
+p {
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 1.5;
+}
+button {
+  padding: 12px 24px;
+  font-size: clamp(14px, 4vw, 16px);
+  border-radius: 40px;
+  background: #00FF30;
+  color: #000;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  margin: 8px 0;
+  width: auto;
+  min-width: 160px;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+@media (max-width: 550px) {
+  body {
+    padding: 15px 10px;
+  }
+  button {
+    width: 90%;
+    max-width: 280px;
+  }
+}
 </style>
 </head>
 <body>
@@ -107,55 +153,62 @@ p { margin-top:20px; font-size:18px; }
   function renderGetKeyPage() {
     container.innerHTML = `
       <p>Click the button below to get your key for the script.</p>
-      <button id="actionBtn">Get key</button>
+      <div class="button-group">
+        <button id="actionBtn">Get key</button>
+        <button id="purchaseBtn">Purchase keys</button>
+      </div>
     `;
-    const btn = document.getElementById("actionBtn");
-    if (!btn) return;
-    btn.onclick = async () => {
+    const actionBtn = document.getElementById("actionBtn");
+    const purchaseBtn = document.getElementById("purchaseBtn");
+    if (!actionBtn) return;
+    purchaseBtn.onclick = () => {
+      window.open("https://vitaliy5963.github.io/", "_blank");
+    };
+    actionBtn.onclick = async () => {
       if (isTempValid()) {
         const existingShort = getStoredShortUrl();
         if (existingShort) {
-          btn.textContent = "Open task";
-          btn.onclick = () => {
+          actionBtn.textContent = "Open task";
+          actionBtn.onclick = () => {
             window.open(existingShort, "_blank");
           };
           return;
         } else {
-          btn.textContent = "Processing...";
-          btn.disabled = true;
+          actionBtn.textContent = "Processing...";
+          actionBtn.disabled = true;
           try {
             const tempKey = getStoredTempKey();
             const shortUrl = await createShortenedUrl(tempKey);
             storeShortUrl(shortUrl);
-            btn.textContent = "Open task";
-            btn.disabled = false;
-            btn.onclick = () => {
+            actionBtn.textContent = "Open task";
+            actionBtn.disabled = false;
+            actionBtn.onclick = () => {
               window.open(shortUrl, "_blank");
             };
           } catch (err) {
-            btn.textContent = "Error, try again";
-            btn.disabled = false;
-            btn.onclick = () => location.reload();
+            actionBtn.textContent = "Error, try again";
+            actionBtn.disabled = false;
+            actionBtn.onclick = () => location.reload();
           }
         }
         return;
       }
-      btn.textContent = "Processing...";
-      btn.disabled = true;
+      actionBtn.textContent = "Processing...";
+      actionBtn.disabled = true;
       try {
         const newTempKey = await fetchTempKey();
         storeTempKey(newTempKey, ONE_HOUR_MS);
         const shortUrl = await createShortenedUrl(newTempKey);
         storeShortUrl(shortUrl);
-        btn.textContent = "Open task";
-        btn.disabled = false;
-        btn.onclick = () => {
+        actionBtn.textContent = "Open task";
+        actionBtn.disabled = false;
+        actionBtn.onclick = () => {
           window.open(shortUrl, "_blank");
         };
       } catch (err) {
-        btn.textContent = "Error, try again";
-        btn.disabled = false;
-        btn.onclick = () => location.reload();
+        actionBtn.textContent = "Error, try again";
+        actionBtn.disabled = false;
+        actionBtn.onclick = () => location.reload();
       }
     };
   }
@@ -163,28 +216,35 @@ p { margin-top:20px; font-size:18px; }
   function renderKeyGeneratorPage(tempKey) {
     container.innerHTML = `
       <p>Click the button below to get your key for the script.</p>
-      <button id="actionBtn">Get key</button>
+      <div class="button-group">
+        <button id="actionBtn">Get key</button>
+        <button id="purchaseBtn">Purchase keys</button>
+      </div>
     `;
-    const btn = document.getElementById("actionBtn");
-    if (!btn) return;
-    btn.onclick = async () => {
-      btn.disabled = true;
-      btn.textContent = "Generating the key...";
+    const actionBtn = document.getElementById("actionBtn");
+    const purchaseBtn = document.getElementById("purchaseBtn");
+    if (!actionBtn) return;
+    purchaseBtn.onclick = () => {
+      window.open("https://vitaliy5963.github.io/", "_blank");
+    };
+    actionBtn.onclick = async () => {
+      actionBtn.disabled = true;
+      actionBtn.textContent = "Generating the key...";
       await new Promise(r => setTimeout(r, 3000));
       try {
         const finalKey = await generateFinalKey(tempKey);
         const p = document.createElement("p");
         p.textContent = "Key: " + finalKey;
-        container.insertBefore(p, btn);
-        btn.textContent = "Copy key";
-        btn.disabled = false;
-        btn.onclick = () => {
+        container.insertBefore(p, actionBtn);
+        actionBtn.textContent = "Copy key";
+        actionBtn.disabled = false;
+        actionBtn.onclick = () => {
           navigator.clipboard.writeText(finalKey);
         };
         clearTempData();
       } catch (err) {
-        btn.textContent = "Error";
-        btn.disabled = false;
+        actionBtn.textContent = "Error";
+        actionBtn.disabled = false;
       }
     };
   }
