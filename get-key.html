@@ -52,6 +52,11 @@ button:disabled {
   color: #ffaa00;
   font-weight: bold;
 }
+.key-label {
+  font-size: clamp(16px, 5vw, 20px);
+  margin: 10px 0;
+  word-break: break-all;
+}
 @media (max-width: 550px) {
   body {
     padding: 15px 10px;
@@ -75,13 +80,17 @@ button:disabled {
   const STORAGE_TEMP_KEY = "icraftpe_temp_key";
   const STORAGE_EXPIRY = "icraftpe_temp_expiry";
   const STORAGE_SHORT_URL = "icraftpe_short_url";
+  const STORAGE_FINAL_KEY = "icraftpe_final_key";
+  const STORAGE_FINAL_EXPIRY = "icraftpe_final_expiry";
   const ONE_HOUR_MS = 60 * 60 * 1000;
+  const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
   const urlParams = new URLSearchParams(window.location.search);
   const incomingTempKey = urlParams.get("temporary_key");
   const container = document.getElementById("mainContent");
 
   let timerInterval = null;
+  let finalKeyTimerInterval = null;
 
   function randomAlias(length) {
     let result = "";
@@ -94,6 +103,12 @@ button:disabled {
 
   function isTempValid() {
     const expiry = localStorage.getItem(STORAGE_EXPIRY);
+    if (!expiry) return false;
+    return Date.now() < parseInt(expiry, 10);
+  }
+
+  function isFinalKeyValid() {
+    const expiry = localStorage.getItem(STORAGE_FINAL_EXPIRY);
     if (!expiry) return false;
     return Date.now() < parseInt(expiry, 10);
   }
@@ -113,6 +128,20 @@ button:disabled {
 
   function getStoredShortUrl() {
     return localStorage.getItem(STORAGE_SHORT_URL);
+  }
+
+  function storeFinalKey(key, expiryMs) {
+    localStorage.setItem(STORAGE_FINAL_KEY, key);
+    localStorage.setItem(STORAGE_FINAL_EXPIRY, (Date.now() + expiryMs).toString());
+  }
+
+  function getStoredFinalKey() {
+    return localStorage.getItem(STORAGE_FINAL_KEY);
+  }
+
+  function clearFinalKeyData() {
+    localStorage.removeItem(STORAGE_FINAL_KEY);
+    localStorage.removeItem(STORAGE_FINAL_EXPIRY);
   }
 
   function clearTempData() {
@@ -174,6 +203,13 @@ button:disabled {
     }
   }
 
+  function stopFinalKeyTimer() {
+    if (finalKeyTimerInterval) {
+      clearInterval(finalKeyTimerInterval);
+      finalKeyTimerInterval = null;
+    }
+  }
+
   function startCountdown(expiryTime, labelElement, onExpire) {
     function update() {
       const now = Date.now();
@@ -195,7 +231,68 @@ button:disabled {
     timerInterval = setInterval(update, 1000);
   }
 
+  function startFinalKeyCountdown(expiryTime, labelElement, onExpire) {
+    function update() {
+      const now = Date.now();
+      const remaining = expiryTime - now;
+      if (remaining <= 0) {
+        if (labelElement && labelElement.parentNode) {
+          labelElement.remove();
+        }
+        stopFinalKeyTimer();
+        onExpire();
+      } else {
+        const totalSeconds = Math.floor(remaining / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        labelElement.textContent = `Key expires at: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+    update();
+    finalKeyTimerInterval = setInterval(update, 1000);
+  }
+
+  function showFinalKeyUI() {
+    const finalKey = getStoredFinalKey();
+    const finalExpiry = parseInt(localStorage.getItem(STORAGE_FINAL_EXPIRY), 10);
+    if (!finalKey || isNaN(finalExpiry) || Date.now() >= finalExpiry) {
+      clearFinalKeyData();
+      return false;
+    }
+    container.innerHTML = `
+      <div class="key-label">Your latest valid saved key: ${finalKey}</div>
+      <div class="button-group">
+        <button id="copyFinalKeyBtn">Copy key</button>
+        <button id="purchaseBtn">Purchase keys</button>
+      </div>
+    `;
+    const copyBtn = document.getElementById("copyFinalKeyBtn");
+    const purchaseBtn = document.getElementById("purchaseBtn");
+    if (copyBtn) {
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(finalKey);
+      };
+    }
+    if (purchaseBtn) {
+      purchaseBtn.onclick = () => {
+        window.location.href = "https://vitaliy5963.github.io/";
+      };
+    }
+    const timerLabel = document.createElement("div");
+    timerLabel.className = "timer-label";
+    purchaseBtn.parentNode.insertBefore(timerLabel, purchaseBtn.nextSibling);
+    startFinalKeyCountdown(finalExpiry, timerLabel, () => {
+      clearFinalKeyData();
+      renderGetKeyPage();
+    });
+    return true;
+  }
+
   function renderGetKeyPage() {
+    if (isFinalKeyValid()) {
+      if (showFinalKeyUI()) return;
+    }
     container.innerHTML = `
       <p>Click the button below to get your key for the script.</p>
       <div class="button-group">
@@ -229,67 +326,7 @@ button:disabled {
               purchaseBtn.parentNode.insertBefore(timerLabel, purchaseBtn.nextSibling);
               startCountdown(expiryTime, timerLabel, () => {
                 clearTempData();
-                actionBtn.textContent = "Get key";
-                actionBtn.disabled = false;
-                actionBtn.onclick = async () => {
-                  actionBtn.disabled = true;
-                  actionBtn.textContent = "Processing...";
-                  try {
-                    const newTempKey = await fetchTempKey();
-                    storeTempKey(newTempKey, ONE_HOUR_MS);
-                    const newShortUrl = await createShortenedUrl(newTempKey);
-                    storeShortUrl(newShortUrl);
-                    actionBtn.textContent = "Open task";
-                    actionBtn.disabled = false;
-                    actionBtn.onclick = () => {
-                      window.open(newShortUrl, "_blank");
-                    };
-                    const newExpiry = Date.now() + ONE_HOUR_MS;
-                    const newLabel = document.createElement("div");
-                    newLabel.className = "timer-label";
-                    purchaseBtn.parentNode.insertBefore(newLabel, purchaseBtn.nextSibling);
-                    startCountdown(newExpiry, newLabel, () => {
-                      clearTempData();
-                      actionBtn.textContent = "Get key";
-                      actionBtn.disabled = false;
-                      const oldLabel = newLabel;
-                      if (oldLabel && oldLabel.parentNode) oldLabel.remove();
-                      actionBtn.onclick = async () => {
-                        actionBtn.disabled = true;
-                        actionBtn.textContent = "Processing...";
-                        try {
-                          const newerTempKey = await fetchTempKey();
-                          storeTempKey(newerTempKey, ONE_HOUR_MS);
-                          const newerShortUrl = await createShortenedUrl(newerTempKey);
-                          storeShortUrl(newerShortUrl);
-                          actionBtn.textContent = "Open task";
-                          actionBtn.disabled = false;
-                          actionBtn.onclick = () => {
-                            window.open(newerShortUrl, "_blank");
-                          };
-                          const newerExpiry = Date.now() + ONE_HOUR_MS;
-                          const refreshedLabel = document.createElement("div");
-                          refreshedLabel.className = "timer-label";
-                          purchaseBtn.parentNode.insertBefore(refreshedLabel, purchaseBtn.nextSibling);
-                          startCountdown(newerExpiry, refreshedLabel, () => {
-                            clearTempData();
-                            actionBtn.textContent = "Get key";
-                            actionBtn.disabled = false;
-                            if (refreshedLabel && refreshedLabel.parentNode) refreshedLabel.remove();
-                          });
-                        } catch (err) {
-                          actionBtn.textContent = "Error, try again";
-                          actionBtn.disabled = false;
-                          actionBtn.onclick = () => location.reload();
-                        }
-                      };
-                    });
-                  } catch (err) {
-                    actionBtn.textContent = "Error, try again";
-                    actionBtn.disabled = false;
-                    actionBtn.onclick = () => location.reload();
-                  }
-                };
+                renderGetKeyPage();
               });
             }
             return;
@@ -319,38 +356,7 @@ button:disabled {
           purchaseBtn.parentNode.insertBefore(timerLabel, purchaseBtn.nextSibling);
           startCountdown(expiryTime, timerLabel, () => {
             clearTempData();
-            actionBtn.textContent = "Get key";
-            actionBtn.disabled = false;
-            if (timerLabel && timerLabel.parentNode) timerLabel.remove();
-            actionBtn.onclick = async () => {
-              actionBtn.disabled = true;
-              actionBtn.textContent = "Processing...";
-              try {
-                const newerTempKey = await fetchTempKey();
-                storeTempKey(newerTempKey, ONE_HOUR_MS);
-                const newerShortUrl = await createShortenedUrl(newerTempKey);
-                storeShortUrl(newerShortUrl);
-                actionBtn.textContent = "Open task";
-                actionBtn.disabled = false;
-                actionBtn.onclick = () => {
-                  window.open(newerShortUrl, "_blank");
-                };
-                const newerExpiry = Date.now() + ONE_HOUR_MS;
-                const refreshedLabel = document.createElement("div");
-                refreshedLabel.className = "timer-label";
-                purchaseBtn.parentNode.insertBefore(refreshedLabel, purchaseBtn.nextSibling);
-                startCountdown(newerExpiry, refreshedLabel, () => {
-                  clearTempData();
-                  actionBtn.textContent = "Get key";
-                  actionBtn.disabled = false;
-                  if (refreshedLabel && refreshedLabel.parentNode) refreshedLabel.remove();
-                });
-              } catch (err) {
-                actionBtn.textContent = "Error, try again";
-                actionBtn.disabled = false;
-                actionBtn.onclick = () => location.reload();
-              }
-            };
+            renderGetKeyPage();
           });
         } catch (err) {
           actionBtn.textContent = "Error, try again";
@@ -383,6 +389,7 @@ button:disabled {
       await new Promise(r => setTimeout(r, 3000));
       try {
         const finalKey = await generateFinalKey(tempKey);
+        storeFinalKey(finalKey, TWENTY_FOUR_HOURS_MS);
         const p = document.createElement("p");
         p.textContent = "Key: " + finalKey;
         container.insertBefore(p, actionBtn);
@@ -393,6 +400,7 @@ button:disabled {
         };
         clearTempData();
         stopTimer();
+        renderGetKeyPage();
       } catch (err) {
         actionBtn.textContent = "Error";
         actionBtn.disabled = false;
@@ -419,7 +427,9 @@ button:disabled {
   }
 
   if (incomingTempKey) {
-    if (!validateReferrer()) {
+    if (isFinalKeyValid()) {
+      container.innerHTML = `<p>Error: Invalid access.</p>`;
+    } else if (!validateReferrer()) {
       container.innerHTML = `<p>Error: Invalid access. Please use the task link from the previous step.</p>`;
     } else if (!validateLocalTemp(incomingTempKey)) {
       container.innerHTML = `<p>Error: Temporary key expired or invalid. Please restart the process.</p>`;
