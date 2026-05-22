@@ -375,6 +375,12 @@ footer {
     <p>Make sure to enter your VALID email. The key will be displayed after purchase in the game and will also be sent to your email if you entered it correctly.</p>
 
     <p><strong>Lost your key?</strong> If the email didn't come or you deleted it, click the "Contact us" tab above and contact us. Don't forget to attach the purchase transaction (based on your purchase method) showing the purchase and provide additional info using text to prove the purchase.</p>
+
+    <h3>Free key:</h3>
+    <button id="freeKeyBtn" class="btn-link" style="margin:5px 0;">Click here</button>
+    <div class="note-box">
+      <strong>Note:</strong> When you click on the "Get key" button, it generates a link which works ONLY for one hour. You have only one hour to complete the generated task link, else, you'll have to re-generate it. Misusing the system can lead to a permanent hardware blacklist.
+    </div>
   </div>
 </div>
 
@@ -702,6 +708,13 @@ footer {
     window.open(finalLink, "_blank");
     emailInput.value = "";
   });
+
+  const freeKeyBtn = document.getElementById("freeKeyBtn");
+  if (freeKeyBtn) {
+    freeKeyBtn.onclick = () => {
+      window.location.href = "https://vitaliy5963.github.io/get-key.html";
+    };
+  }
 </script>
 
 <script>
