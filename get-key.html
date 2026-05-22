@@ -46,6 +46,12 @@ button:disabled {
   gap: 12px;
   margin-top: 20px;
 }
+.timer-label {
+  margin-top: 5px;
+  font-size: clamp(14px, 4vw, 16px);
+  color: #ffaa00;
+  font-weight: bold;
+}
 @media (max-width: 550px) {
   body {
     padding: 15px 10px;
@@ -74,6 +80,8 @@ button:disabled {
   const urlParams = new URLSearchParams(window.location.search);
   const incomingTempKey = urlParams.get("temporary_key");
   const container = document.getElementById("mainContent");
+
+  let timerInterval = null;
 
   function randomAlias(length) {
     let result = "";
@@ -159,6 +167,34 @@ button:disabled {
     return shortUrl;
   }
 
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function startCountdown(expiryTime, labelElement, onExpire) {
+    function update() {
+      const now = Date.now();
+      const remaining = expiryTime - now;
+      if (remaining <= 0) {
+        if (labelElement && labelElement.parentNode) {
+          labelElement.remove();
+        }
+        stopTimer();
+        onExpire();
+      } else {
+        const totalSeconds = Math.floor(remaining / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        labelElement.textContent = `Task expires in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+    }
+    update();
+    timerInterval = setInterval(update, 1000);
+  }
+
   function renderGetKeyPage() {
     container.innerHTML = `
       <p>Click the button below to get your key for the script.</p>
@@ -186,6 +222,76 @@ button:disabled {
             actionBtn.onclick = () => {
               window.open(shortUrl, "_blank");
             };
+            const expiryTime = parseInt(localStorage.getItem(STORAGE_EXPIRY), 10);
+            if (!isNaN(expiryTime)) {
+              const timerLabel = document.createElement("div");
+              timerLabel.className = "timer-label";
+              purchaseBtn.parentNode.insertBefore(timerLabel, purchaseBtn.nextSibling);
+              startCountdown(expiryTime, timerLabel, () => {
+                clearTempData();
+                actionBtn.textContent = "Get key";
+                actionBtn.disabled = false;
+                actionBtn.onclick = async () => {
+                  actionBtn.disabled = true;
+                  actionBtn.textContent = "Processing...";
+                  try {
+                    const newTempKey = await fetchTempKey();
+                    storeTempKey(newTempKey, ONE_HOUR_MS);
+                    const newShortUrl = await createShortenedUrl(newTempKey);
+                    storeShortUrl(newShortUrl);
+                    actionBtn.textContent = "Open task";
+                    actionBtn.disabled = false;
+                    actionBtn.onclick = () => {
+                      window.open(newShortUrl, "_blank");
+                    };
+                    const newExpiry = Date.now() + ONE_HOUR_MS;
+                    const newLabel = document.createElement("div");
+                    newLabel.className = "timer-label";
+                    purchaseBtn.parentNode.insertBefore(newLabel, purchaseBtn.nextSibling);
+                    startCountdown(newExpiry, newLabel, () => {
+                      clearTempData();
+                      actionBtn.textContent = "Get key";
+                      actionBtn.disabled = false;
+                      const oldLabel = newLabel;
+                      if (oldLabel && oldLabel.parentNode) oldLabel.remove();
+                      actionBtn.onclick = async () => {
+                        actionBtn.disabled = true;
+                        actionBtn.textContent = "Processing...";
+                        try {
+                          const newerTempKey = await fetchTempKey();
+                          storeTempKey(newerTempKey, ONE_HOUR_MS);
+                          const newerShortUrl = await createShortenedUrl(newerTempKey);
+                          storeShortUrl(newerShortUrl);
+                          actionBtn.textContent = "Open task";
+                          actionBtn.disabled = false;
+                          actionBtn.onclick = () => {
+                            window.open(newerShortUrl, "_blank");
+                          };
+                          const newerExpiry = Date.now() + ONE_HOUR_MS;
+                          const refreshedLabel = document.createElement("div");
+                          refreshedLabel.className = "timer-label";
+                          purchaseBtn.parentNode.insertBefore(refreshedLabel, purchaseBtn.nextSibling);
+                          startCountdown(newerExpiry, refreshedLabel, () => {
+                            clearTempData();
+                            actionBtn.textContent = "Get key";
+                            actionBtn.disabled = false;
+                            if (refreshedLabel && refreshedLabel.parentNode) refreshedLabel.remove();
+                          });
+                        } catch (err) {
+                          actionBtn.textContent = "Error, try again";
+                          actionBtn.disabled = false;
+                          actionBtn.onclick = () => location.reload();
+                        }
+                      };
+                    });
+                  } catch (err) {
+                    actionBtn.textContent = "Error, try again";
+                    actionBtn.disabled = false;
+                    actionBtn.onclick = () => location.reload();
+                  }
+                };
+              });
+            }
             return;
           } catch (err) {
             console.error(err);
@@ -207,6 +313,45 @@ button:disabled {
           actionBtn.onclick = () => {
             window.open(shortUrl, "_blank");
           };
+          const expiryTime = Date.now() + ONE_HOUR_MS;
+          const timerLabel = document.createElement("div");
+          timerLabel.className = "timer-label";
+          purchaseBtn.parentNode.insertBefore(timerLabel, purchaseBtn.nextSibling);
+          startCountdown(expiryTime, timerLabel, () => {
+            clearTempData();
+            actionBtn.textContent = "Get key";
+            actionBtn.disabled = false;
+            if (timerLabel && timerLabel.parentNode) timerLabel.remove();
+            actionBtn.onclick = async () => {
+              actionBtn.disabled = true;
+              actionBtn.textContent = "Processing...";
+              try {
+                const newerTempKey = await fetchTempKey();
+                storeTempKey(newerTempKey, ONE_HOUR_MS);
+                const newerShortUrl = await createShortenedUrl(newerTempKey);
+                storeShortUrl(newerShortUrl);
+                actionBtn.textContent = "Open task";
+                actionBtn.disabled = false;
+                actionBtn.onclick = () => {
+                  window.open(newerShortUrl, "_blank");
+                };
+                const newerExpiry = Date.now() + ONE_HOUR_MS;
+                const refreshedLabel = document.createElement("div");
+                refreshedLabel.className = "timer-label";
+                purchaseBtn.parentNode.insertBefore(refreshedLabel, purchaseBtn.nextSibling);
+                startCountdown(newerExpiry, refreshedLabel, () => {
+                  clearTempData();
+                  actionBtn.textContent = "Get key";
+                  actionBtn.disabled = false;
+                  if (refreshedLabel && refreshedLabel.parentNode) refreshedLabel.remove();
+                });
+              } catch (err) {
+                actionBtn.textContent = "Error, try again";
+                actionBtn.disabled = false;
+                actionBtn.onclick = () => location.reload();
+              }
+            };
+          });
         } catch (err) {
           actionBtn.textContent = "Error, try again";
           actionBtn.disabled = false;
@@ -247,6 +392,7 @@ button:disabled {
           navigator.clipboard.writeText(finalKey);
         };
         clearTempData();
+        stopTimer();
       } catch (err) {
         actionBtn.textContent = "Error";
         actionBtn.disabled = false;
