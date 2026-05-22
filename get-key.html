@@ -150,6 +150,15 @@ button:disabled {
     return data.key;
   }
 
+  async function ensureShortUrl(tempKey) {
+    let shortUrl = getStoredShortUrl();
+    if (!shortUrl) {
+      shortUrl = await createShortenedUrl(tempKey);
+      storeShortUrl(shortUrl);
+    }
+    return shortUrl;
+  }
+
   function renderGetKeyPage() {
     container.innerHTML = `
       <p>Click the button below to get your key for the script.</p>
@@ -161,56 +170,50 @@ button:disabled {
     const actionBtn = document.getElementById("actionBtn");
     const purchaseBtn = document.getElementById("purchaseBtn");
     if (!actionBtn) return;
+
     purchaseBtn.onclick = () => {
       window.location.href = "https://vitaliy5963.github.io/";
     };
-    actionBtn.onclick = async () => {
+
+    (async () => {
       if (isTempValid()) {
-        const existingShort = getStoredShortUrl();
-        if (existingShort) {
-          actionBtn.textContent = "Open task";
-          actionBtn.onclick = () => {
-            window.open(existingShort, "_blank");
-          };
-          return;
-        } else {
-          actionBtn.textContent = "Processing...";
-          actionBtn.disabled = true;
+        const tempKey = getStoredTempKey();
+        if (tempKey) {
           try {
-            const tempKey = getStoredTempKey();
-            const shortUrl = await createShortenedUrl(tempKey);
-            storeShortUrl(shortUrl);
+            const shortUrl = await ensureShortUrl(tempKey);
             actionBtn.textContent = "Open task";
             actionBtn.disabled = false;
             actionBtn.onclick = () => {
               window.open(shortUrl, "_blank");
             };
+            return;
           } catch (err) {
-            actionBtn.textContent = "Error, try again";
-            actionBtn.disabled = false;
-            actionBtn.onclick = () => location.reload();
+            console.error(err);
           }
         }
-        return;
       }
-      actionBtn.textContent = "Processing...";
-      actionBtn.disabled = true;
-      try {
-        const newTempKey = await fetchTempKey();
-        storeTempKey(newTempKey, ONE_HOUR_MS);
-        const shortUrl = await createShortenedUrl(newTempKey);
-        storeShortUrl(shortUrl);
-        actionBtn.textContent = "Open task";
-        actionBtn.disabled = false;
-        actionBtn.onclick = () => {
-          window.open(shortUrl, "_blank");
-        };
-      } catch (err) {
-        actionBtn.textContent = "Error, try again";
-        actionBtn.disabled = false;
-        actionBtn.onclick = () => location.reload();
-      }
-    };
+      actionBtn.textContent = "Get key";
+      actionBtn.disabled = false;
+      actionBtn.onclick = async () => {
+        actionBtn.disabled = true;
+        actionBtn.textContent = "Processing...";
+        try {
+          const newTempKey = await fetchTempKey();
+          storeTempKey(newTempKey, ONE_HOUR_MS);
+          const shortUrl = await createShortenedUrl(newTempKey);
+          storeShortUrl(shortUrl);
+          actionBtn.textContent = "Open task";
+          actionBtn.disabled = false;
+          actionBtn.onclick = () => {
+            window.open(shortUrl, "_blank");
+          };
+        } catch (err) {
+          actionBtn.textContent = "Error, try again";
+          actionBtn.disabled = false;
+          actionBtn.onclick = () => location.reload();
+        }
+      };
+    })();
   }
 
   function renderKeyGeneratorPage(tempKey) {
@@ -224,9 +227,11 @@ button:disabled {
     const actionBtn = document.getElementById("actionBtn");
     const purchaseBtn = document.getElementById("purchaseBtn");
     if (!actionBtn) return;
+
     purchaseBtn.onclick = () => {
       window.location.href = "https://vitaliy5963.github.io/";
     };
+
     actionBtn.onclick = async () => {
       actionBtn.disabled = true;
       actionBtn.textContent = "Generating the key...";
