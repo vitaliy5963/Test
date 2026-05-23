@@ -34,10 +34,23 @@ button {
   margin: 8px 0;
   width: auto;
   min-width: 160px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+.discord-btn {
+  background: #5865F2;
+  color: #fff;
+}
+.discord-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
 }
 .button-group {
   display: flex;
@@ -91,6 +104,8 @@ button:disabled {
 
   let timerInterval = null;
   let finalKeyTimerInterval = null;
+
+  const discordSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.86.68,1.75,1.36,2.66,2a68.42,68.42,0,0,1-10.87,5.18,77.7,77.7,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22C129.24,52.42,122.09,29.17,107.7,8.07ZM42.45,65.69c-3.5,0-6.53-3.22-6.53-7.18s2.71-7.18,6.53-7.18,6.53,3.22,6.53,7.18-2.71,7.18-6.53,7.18Zm42.24,0c-3.5,0-6.53-3.22-6.53-7.18s2.71-7.18,6.53-7.18,6.53,3.22,6.53,7.18-2.71,7.18-6.53,7.18Z"/></svg>';
 
   function randomAlias(length) {
     let result = "";
@@ -253,6 +268,16 @@ button:disabled {
     finalKeyTimerInterval = setInterval(update, 1000);
   }
 
+  function addDiscordButton(parentElement) {
+    const discordBtn = document.createElement("button");
+    discordBtn.className = "discord-btn";
+    discordBtn.innerHTML = `${discordSvg} Discord server`;
+    discordBtn.onclick = () => {
+      window.open("https://discord.gg/wwMqbhR8j9", "_blank");
+    };
+    parentElement.appendChild(discordBtn);
+  }
+
   function showFinalKeyUI() {
     const finalKey = getStoredFinalKey();
     const finalExpiry = parseInt(localStorage.getItem(STORAGE_FINAL_EXPIRY), 10);
@@ -286,6 +311,7 @@ button:disabled {
       clearFinalKeyData();
       renderGetKeyPage();
     });
+    addDiscordButton(purchaseBtn.parentNode);
     return true;
   }
 
@@ -329,6 +355,7 @@ button:disabled {
                 renderGetKeyPage();
               });
             }
+            addDiscordButton(purchaseBtn.parentNode);
             return;
           } catch (err) {
             console.error(err);
@@ -358,12 +385,14 @@ button:disabled {
             clearTempData();
             renderGetKeyPage();
           });
+          addDiscordButton(purchaseBtn.parentNode);
         } catch (err) {
           actionBtn.textContent = "Error, try again";
           actionBtn.disabled = false;
           actionBtn.onclick = () => location.reload();
         }
       };
+      addDiscordButton(purchaseBtn.parentNode);
     })();
   }
 
@@ -406,6 +435,7 @@ button:disabled {
         actionBtn.disabled = false;
       }
     };
+    addDiscordButton(purchaseBtn.parentNode);
   }
 
   function validateReferrer() {
