@@ -37,6 +37,7 @@ th { background:#222; color:#00ff30; }
 .status-active { color:#00ff30; font-weight:bold; }
 .status-expired { color:#ffaa00; font-weight:bold; }
 .status-blacklisted { color:#ff4444; font-weight:bold; }
+.status-permanent { color:#00ff30; font-weight:bold; }
 .delete-btn { background:#ff4444; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; border:none; font-weight:bold; margin:2px; }
 .delete-btn:disabled { opacity:0.5; cursor:not-allowed; }
 .blacklist-btn { background:#ff8800; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; border:none; font-weight:bold; margin:2px; white-space:nowrap; }
@@ -181,13 +182,14 @@ function startDashboard(login) {
       "<div class='sorting-area'>" +
         "<label>Sorting:</label>" +
         "<select id='sort-select'>" +
-          "<option value='all'>All</option>" +
-          "<option value='active'>Active</option>" +
-          "<option value='expired'>Expired</option>" +
-          "<option value='blacklisted'>Blacklisted</option>" +
+          "<option value='all'>All keys</option>" +
+          "<option value='active'>Active keys</option>" +
+          "<option value='expired'>Expired keys</option>" +
+          "<option value='blacklisted'>Blacklisted keys</option>" +
           "<option value='tasks'>Task keys</option>" +
           "<option value='admin'>Admin keys</option>" +
           "<option value='customer'>Customer keys</option>" +
+          "<option value='permanent'>Permanent keys</option>" +
           "<option value='used'>Used keys</option>" +
           "<option value='unused'>Unused keys</option>" +
         "</select>" +
@@ -244,7 +246,7 @@ function startDashboard(login) {
               "<th>Reason</th>" +
               "<th>Status</th>" +
               "<th>Actions</th>" +
-            "</tr>" +
+            "</td>" +
           "</thead>" +
           "<tbody id='blacklist-tbody'></tbody>" +
         "</table>" +
@@ -298,6 +300,8 @@ function startDashboard(login) {
       for (const row of rows) {
         const isBlacklisted = row.getAttribute("data-blacklisted") === "true";
         if (isBlacklisted) continue;
+        const isPermanent = row.getAttribute("data-permanent") === "true";
+        if (isPermanent) continue;
 
         const expTimeAttr = row.getAttribute("data-exp-time");
         if (!expTimeAttr) continue;
@@ -366,7 +370,7 @@ function startDashboard(login) {
     if (nextBtn) nextBtn.disabled = true;
     
     const tbody = document.getElementById("keys-tbody");
-    if (tbody) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
+    if (tbody) tbody.innerHTML = "</table><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
 
     const creds = getAdminCredentials();
     const body = "action=get_keys&page=" + page + "&search=" + encodeURIComponent(search) + "&sort=" + sort + "&exp_sort=" + expSort + "&page_size=" + pageSize + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password);
@@ -402,20 +406,29 @@ function startDashboard(login) {
   function renderTable(keys) {
     const tbody = document.getElementById("keys-tbody");
     if (!keys.length) {
-      tbody.innerHTML = "<tr><td colspan='6'>No keys found</td></tr>";
+      tbody.innerHTML = "</table><td colspan='6'>No keys found</td></tr>";
       return;
     }
     let html = "";
     for (const k of keys) {
-      let statusClass = k.status === "Active" ? "status-active" : "status-expired";
+      let statusClass = "status-active";
       let statusText = k.status;
       let timeLeftDisplay = k.timeLeft;
       let isBlacklisted = k.blacklisted || false;
+      let isPermanent = k.permanent || false;
 
       if (isBlacklisted) {
         statusClass = "status-blacklisted";
         statusText = "Blacklisted";
         timeLeftDisplay = "Blacklisted";
+      } else if (isPermanent) {
+        statusClass = "status-permanent";
+        statusText = "Permanent";
+        timeLeftDisplay = "Permanent";
+      } else {
+        statusClass = k.status === "Active" ? "status-active" : "status-expired";
+        statusText = k.status;
+        timeLeftDisplay = k.timeLeft;
       }
 
       const hwidDisplay = k.hwid || "Not used";
@@ -426,7 +439,7 @@ function startDashboard(login) {
           (isBlacklisted ? 'WHITELIST' : 'BLACKLIST') +
         '</button>';
 
-      html += '<tr data-key="' + escapeHtml(k.key) + '" data-exp-time="' + (k.expTime || "") + '" data-blacklisted="' + isBlacklisted + '">' +
+      html += '<tr data-key="' + escapeHtml(k.key) + '" data-exp-time="' + (k.expTime || "") + '" data-blacklisted="' + isBlacklisted + '" data-permanent="' + isPermanent + '">' +
         '<td>' + escapeHtml(hwidDisplay) + '</td>' +
         '<td>' + escapeHtml(k.type) + '</td>' +
         '<td>' + escapeHtml(k.key) + '</td>' +
