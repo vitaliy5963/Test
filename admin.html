@@ -2,62 +2,74 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Admin panel</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5252606552651648" crossorigin="anonymous"></script>
 <style>
-body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding-top:60px; }
-input, select { padding:10px; margin:5px; border-radius:8px; border:none; background:#222; color:#fff; }
-button { padding:12px 25px; font-size:14px; border-radius:10px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
+body { background:#111; color:#fff; font-family:Arial, sans-serif; text-align:center; padding:20px 12px; margin:0; }
+input, select { padding:10px; margin:5px; border-radius:8px; border:none; background:#222; color:#fff; font-size:14px; }
+button { padding:12px 20px; font-size:14px; border-radius:10px; background:#00FF30; color:#000; cursor:pointer; font-weight:bold; border:none; }
 button:disabled { opacity:0.6; cursor:not-allowed; }
-.msg { width:320px; margin:15px auto; padding:14px; border-radius:12px; font-weight:bold; }
+.msg { width:auto; max-width:320px; margin:15px auto; padding:14px; border-radius:12px; font-weight:bold; }
 .error { background:rgba(255,0,0,0.15); color:#ff4d4d; border:1px solid rgba(255,0,0,0.4); }
 .success { background:rgba(0,255,0,0.15); color:#00ff66; border:1px solid rgba(0,255,0,0.4); }
-.topbar { position:fixed; top:10px; right:15px; display:flex; gap:15px; align-items:center; }
-.link { cursor:pointer; color:#00ff30; font-weight:bold; }
-.main-container { max-width:1400px; margin:0 auto; padding:20px; }
-.tab-bar { display:flex; justify-content:center; gap:20px; margin-bottom:30px; border-bottom:1px solid #333; padding-bottom:10px; }
-.tab-button { background:transparent; color:#aaa; font-size:18px; padding:10px 30px; border-radius:8px; cursor:pointer; transition:0.2s; }
+.topbar { position:fixed; top:10px; right:15px; left:15px; display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap:wrap; background:#111; z-index:10; }
+.link { cursor:pointer; color:#00ff30; font-weight:bold; font-size:clamp(12px, 4vw, 16px); }
+.main-container { max-width:1400px; margin:0 auto; padding:10px; width:100%; box-sizing:border-box; overflow-x:auto; }
+.tab-bar { display:flex; justify-content:center; gap:12px; margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:10px; flex-wrap:wrap; }
+.tab-button { background:transparent; color:#aaa; font-size:clamp(14px, 4.5vw, 18px); padding:8px 16px; border-radius:8px; cursor:pointer; transition:0.2s; border:none; font-weight:bold; white-space:nowrap; }
 .tab-button.active { background:#00ff30; color:#000; }
 .tab-button:not(.active):hover { background:#333; color:#fff; }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
-.stats { display:flex; gap:30px; justify-content:center; margin-bottom:30px; flex-wrap:wrap; }
-.stat-card { background:#1e1e1e; border-radius:16px; padding:20px; min-width:160px; text-align:center; border:1px solid #333; }
-.stat-card h3 { margin:0 0 10px 0; color:#aaa; font-size:18px; }
-.stat-card .number { font-size:36px; font-weight:bold; color:#00ff30; }
-.search-area { margin:20px 0; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.search-area input { width:300px; background:#222; color:#fff; border:1px solid #444; }
-.search-area button { padding:10px 20px; }
-.sorting-area { margin:15px 0 10px 0; display:flex; gap:20px; justify-content:center; align-items:center; flex-wrap:wrap; }
-.sorting-area label { font-weight:bold; }
-.sorting-area select { padding:8px 16px; background:#222; color:#fff; border:none; border-radius:8px; }
-table { width:100%; border-collapse:collapse; margin-top:20px; background:#1a1a1a; border-radius:12px; overflow:hidden; table-layout:fixed; }
-th, td { padding:12px 8px; text-align:left; border-bottom:1px solid #333; vertical-align:middle; word-break:break-all; }
+.stats { display:flex; gap:15px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.stat-card { background:#1e1e1e; border-radius:16px; padding:15px; min-width:120px; text-align:center; border:1px solid #333; flex:1 1 auto; }
+.stat-card h3 { margin:0 0 8px 0; color:#aaa; font-size:clamp(14px, 4vw, 18px); }
+.stat-card .number { font-size:clamp(28px, 7vw, 36px); font-weight:bold; color:#00ff30; }
+.search-area { margin:15px 0; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.search-area input { width:100%; max-width:300px; background:#222; color:#fff; border:1px solid #444; box-sizing:border-box; }
+.search-area button { padding:8px 16px; }
+.sorting-area { margin:15px 0 10px 0; display:flex; gap:12px; justify-content:center; align-items:center; flex-wrap:wrap; }
+.sorting-area label { font-weight:bold; font-size:clamp(12px, 3.5vw, 14px); }
+.sorting-area select { padding:6px 12px; background:#222; color:#fff; border:none; border-radius:8px; font-size:clamp(12px, 3.5vw, 14px); }
+.table-container { overflow-x:auto; width:100%; margin-top:20px; border-radius:12px; }
+table { width:100%; border-collapse:collapse; background:#1a1a1a; min-width:600px; }
+th, td { padding:10px 6px; text-align:left; border-bottom:1px solid #333; vertical-align:middle; font-size:clamp(12px, 3.5vw, 14px); }
 th { background:#222; color:#00ff30; }
 .status-active { color:#00ff30; font-weight:bold; }
 .status-expired { color:#ffaa00; font-weight:bold; }
 .status-blacklisted { color:#ff4444; font-weight:bold; }
 .status-permanent { color:#00ff30; font-weight:bold; }
-.delete-btn { background:#ff4444; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; border:none; font-weight:bold; margin:2px; }
-.delete-btn:disabled { opacity:0.5; cursor:not-allowed; }
-.blacklist-btn { background:#ff8800; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; border:none; font-weight:bold; margin:2px; white-space:nowrap; }
-.blacklist-btn:disabled { opacity:0.5; cursor:not-allowed; }
-.remove-btn { background:#ff4444; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; border:none; font-weight:bold; }
-.remove-btn:disabled { opacity:0.5; cursor:not-allowed; }
-.pagination { margin-top:20px; display:flex; gap:15px; justify-content:center; align-items:center; }
-.pagination button { padding:8px 20px; }
-.page-info { color:#aaa; }
-.manage-section { background:#1e1e1e; border-radius:16px; padding:20px; border:1px solid #333; }
-.manage-section h2 { text-align:center; margin-top:0; color:#00ff30; }
-.action-select { display:flex; justify-content:center; gap:20px; margin-bottom:20px; align-items:center; }
+.delete-btn, .blacklist-btn, .remove-btn { padding:4px 8px; font-size:12px; margin:2px; white-space:nowrap; }
+.delete-btn { background:#ff4444; color:#fff; border-radius:6px; border:none; cursor:pointer; }
+.blacklist-btn { background:#ff8800; color:#fff; border-radius:6px; border:none; cursor:pointer; }
+.remove-btn { background:#ff4444; color:#fff; border-radius:6px; border:none; cursor:pointer; }
+.pagination { margin-top:20px; display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap; }
+.pagination button { padding:6px 15px; font-size:14px; }
+.page-info { color:#aaa; font-size:clamp(12px, 3.5vw, 14px); }
+.manage-section { background:#1e1e1e; border-radius:16px; padding:15px; border:1px solid #333; margin:10px 0; }
+.manage-section h2 { text-align:center; margin-top:0; color:#00ff30; font-size:clamp(20px, 5vw, 26px); }
+.action-select { display:flex; justify-content:center; gap:15px; margin-bottom:15px; align-items:center; flex-wrap:wrap; }
 .action-select label { font-weight:bold; }
-.action-select select { padding:8px 16px; background:#222; color:#fff; border:none; border-radius:8px; }
-.input-group { display:flex; justify-content:center; gap:15px; margin:15px 0; align-items:center; flex-wrap:wrap; }
-.input-group input { width:250px; }
-.manage-btn { background:#00ff30; margin-top:10px; }
-.toggle-btn { padding:8px 20px; font-size:14px; border-radius:8px; border:none; cursor:pointer; font-weight:bold; min-width:80px; }
+.action-select select { padding:6px 12px; background:#222; color:#fff; border:none; border-radius:8px; }
+.input-group { display:flex; justify-content:center; gap:10px; margin:12px 0; align-items:center; flex-wrap:wrap; }
+.input-group input { width:100%; max-width:220px; box-sizing:border-box; }
+.manage-btn { background:#00ff30; margin-top:10px; padding:8px 20px; }
+.toggle-btn { padding:6px 16px; font-size:14px; border-radius:8px; border:none; cursor:pointer; font-weight:bold; min-width:70px; }
 .toggle-on { background:#00ff30; color:#000; }
 .toggle-off { background:#ff4444; color:#fff; }
+@media (max-width: 600px) {
+  body { padding:60px 10px 20px; }
+  .topbar { position:fixed; top:0; left:0; right:0; background:#111; padding:8px 12px; justify-content:space-between; }
+  .tab-button { padding:6px 12px; font-size:14px; }
+  .stat-card { padding:10px; min-width:100px; }
+  .sorting-area { gap:8px; }
+  .sorting-area select { padding:4px 8px; }
+  .delete-btn, .blacklist-btn { font-size:11px; padding:3px 6px; }
+  .pagination button { padding:5px 12px; }
+  .manage-section { padding:12px; }
+  .input-group input { max-width:100%; }
+}
 </style>
 </head>
 <body>
@@ -216,7 +228,7 @@ function startDashboard(login) {
         "<input type='text' id='search-input' placeholder='Enter a key or a HWID...' style='width:300px;'>" +
         "<button id='search-btn'>Search</button>" +
       "</div>" +
-      "<div id='keys-table-container'>" +
+      "<div class='table-container'>" +
         "<table id='keys-table'>" +
           "<thead>" +
             "<tr>" +
@@ -238,7 +250,7 @@ function startDashboard(login) {
         "<input type='text' id='blacklist-search-input' placeholder='Enter a HWID...' style='width:300px;'>" +
         "<button id='blacklist-search-btn'>Search</button>" +
       "</div>" +
-      "<div id='blacklist-table-container'>" +
+      "<div class='table-container'>" +
         "<table id='blacklist-table'>" +
           "<thead>" +
             "<tr>" +
@@ -246,7 +258,7 @@ function startDashboard(login) {
               "<th>Reason</th>" +
               "<th>Status</th>" +
               "<th>Actions</th>" +
-            "</td>" +
+            "</tr>" +
           "</thead>" +
           "<tbody id='blacklist-tbody'></tbody>" +
         "</table>" +
@@ -263,7 +275,7 @@ function startDashboard(login) {
             "<option value='create'>Create a custom key</option>" +
             "<option value='delete'>Delete a key</option>" +
             "<option value='generate_multiple'>Generate keys (multiple)</option>" +
-          '</select>' +
+          "</select>" +
         "</div>" +
         "<div id='dynamic-inputs'></div>" +
         "<div id='manage-result'></div>" +
@@ -370,7 +382,7 @@ function startDashboard(login) {
     if (nextBtn) nextBtn.disabled = true;
     
     const tbody = document.getElementById("keys-tbody");
-    if (tbody) tbody.innerHTML = "</table><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
+    if (tbody) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading keys...</td></tr>";
 
     const creds = getAdminCredentials();
     const body = "action=get_keys&page=" + page + "&search=" + encodeURIComponent(search) + "&sort=" + sort + "&exp_sort=" + expSort + "&page_size=" + pageSize + "&login=" + encodeURIComponent(creds.login) + "&password=" + encodeURIComponent(creds.password);
@@ -406,7 +418,7 @@ function startDashboard(login) {
   function renderTable(keys) {
     const tbody = document.getElementById("keys-tbody");
     if (!keys.length) {
-      tbody.innerHTML = "</table><td colspan='6'>No keys found</td></tr>";
+      tbody.innerHTML = "<tr><td colspan='6'>No keys found</td></tr>";
       return;
     }
     let html = "";
